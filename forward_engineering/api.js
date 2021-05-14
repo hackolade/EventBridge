@@ -186,7 +186,7 @@ const buildAWSCLIScript = (modelMetadata, openAPISchema, targetScriptOptions = {
 }
 
 const getSchemasInstance = (connectionInfo) => {
-	const { accessKeyId, secretAccessKey, region } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region });
+	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
+	aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken });
 	return new aws.Schemas({apiVersion: '2019-12-02'});
 }
