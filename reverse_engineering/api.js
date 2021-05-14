@@ -14,7 +14,7 @@ this.schemasInstance = null;
 
 module.exports = {
 	connect: async (connectionInfo, logger, cb, app) => {
-		const { accessKeyId, secretAccessKey, region } = connectionInfo;
+		const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 		const sslOptions = await getSslOptions(connectionInfo);
 		const httpOptions = sslOptions.ssl ? {
 			httpOptions: {
@@ -24,7 +24,7 @@ module.exports = {
 				})},
 				...sslOptions
 			} : {};
-		aws.config.update({ accessKeyId, secretAccessKey, region, ...httpOptions });
+		aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken, ...httpOptions });
         const schemasInstance = new aws.Schemas({apiVersion: '2019-12-02'});
 		cb(schemasInstance);
 	},
