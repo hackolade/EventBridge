@@ -47,17 +47,25 @@ function getRequestData(collections, containers, containerId, containersPath = [
 		.filter(collection => collection.entityType === 'request')
 		.map(data => {
 			const requestBodyPropKeyword = getRequestBodyPropKeyword(data.properties);
-			const request = {
+			let request = {
 				tags: commonHelper.mapArrayFieldByName(data.tags, 'tag'),
 				summary: data.summary,
 				description: data.description,
 				externalDocs: commonHelper.mapExternalDocs(data.externalDocs),
 				operationId: data.operationId,
-				parameters: mapRequestParameters(get(data, 'properties.parameters')),
-				requestBody: mapRequestBody(
+				parameters: mapRequestParameters(get(data, 'properties.parameters'))
+			};
+			const extensions = getExtensions(data.scopesExtensions);
+
+			if (!['get', 'delete'].includes(String(data.collectionName).toLowerCase())) {
+				request.requestBody = mapRequestBody(
 					get(data.properties, requestBodyPropKeyword),
 					get(data, 'required', []).includes(requestBodyPropKeyword),
-				),
+				);
+			}
+
+			request = {
+				...request,
 				responses: mapResponses(collections, data.GUID, isPathActivated && data.isActivated),
 				callbacks: getCallbacks(get(data, 'properties.callbacks'), containers, containerId, containersPath),
 				deprecated: data.deprecated,
@@ -66,7 +74,6 @@ function getRequestData(collections, containers, containerId, containersPath = [
 				methodName: data.collectionName,
 				isActivated: data.isActivated
 			};
-			const extensions = getExtensions(data.scopesExtensions);
 
 			return Object.assign({}, request, extensions);
 		})
