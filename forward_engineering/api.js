@@ -8,6 +8,8 @@ const { getServers } = require('./helpers/serversHelper');
 const getExtensions = require('./helpers/extensionsHelper');
 const { getRegistryCreateCLIStatement, getSchemaCreateCLIStatement } = require('./helpers/awsCLIHelpers/awsCLIHelper');
 const { getApiStatements, getItemUpdateParamiters } = require('./helpers/awsCLIHelpers/applyToInstanceHelper');
+const handleReferencePath = require('./helpers/handleReferencePath');
+const mapJsonSchema = require('../reverse_engineering/helpers/adaptJsonSchema/mapJsonSchema');
 const path=require('path');
 
 module.exports = {
@@ -26,8 +28,12 @@ module.exports = {
 
 			const info = getInfo(data.modelData[0]);
 			const servers = getServers(modelServers);
-			const paths = getPaths(data.containers, containersIdsFromCallbacks);
-			const components = getComponents(data);
+			const externalDefinitions = JSON.parse(data.externalDefinitions || '{}').properties || {};
+			const containers = handleRefInContainers(data.containers, externalDefinitions);
+			const paths = getPaths(containers, containersIdsFromCallbacks);
+			const definitions = JSON.parse(data.modelDefinitions) || {};
+			const definitionsWithHandledReferences = mapJsonSchema(definitions, handleRef(externalDefinitions));
+			const components = getComponents(definitionsWithHandledReferences, data.containers);
 			const security = commonHelper.mapSecurity(modelSecurity);
 			const tags = commonHelper.mapTags(modelTags);
 			const externalDocs = commonHelper.mapExternalDocs(modelExternalDocs);
@@ -161,9 +167,14 @@ const addCommentsSigns = (string, format) => {
 	const commentsEnd = /hackoladeCommentEnd\d+/i;
 	const innerCommentStart = /hackoladeInnerCommentStart/i;
 	const innerCommentEnd = /hackoladeInnerCommentEnd/i;
+	const innerCommentStartYamlArrayItem = /- hackoladeInnerCommentStart/i;
 	
 	const { result } = string.split('\n').reduce(({ isCommented, result }, line, index, array) => {
 		if (commentsStart.test(line) || innerCommentStart.test(line)) {
+			if (innerCommentStartYamlArrayItem.test(line)) {
+				const lineBeginsAt = array[index + 1].search(/\S/);
+				array[index + 1] = array[index + 1].slice(0, lineBeginsAt) + '- ' + array[index + 1].slice(lineBeginsAt);
+			}
 			return { isCommented: true, result: result };
 		}
 		if (commentsEnd.test(line)) {
@@ -177,7 +188,7 @@ const addCommentsSigns = (string, format) => {
 		}
 
 		const isNextLineInnerCommentStart = index + 1 < array.length && innerCommentStart.test(array[index + 1]);
-		if (isCommented || isNextLineInnerCommentStart) {
+		if ((isCommented || isNextLineInnerCommentStart) && !innerCommentStartYamlArrayItem.test(array[index + 1])) {
 			result = result + '# ' + line + '\n';
 		} else {
 			result = result + line + '\n';
@@ -210,3 +221,43 @@ const getSchemasInstance = (connectionInfo) => {
 	aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken });
 	return new aws.Schemas({apiVersion: '2019-12-02'});
 }
+
+const handleRefInContainers = (containers, externalDefinitions) => {
+	return containers.map(container => {
+		try {
+			const updatedSchemas = Object.keys(container.jsonSchema).reduce((schemas, id) => {
+				const json = container.jsonSchema[id];
+				try {
+					const updatedSchema = mapJsonSchema(JSON.parse(json), handleRef(externalDefinitions));
+
+					return {
+						...schemas,
+						[id]: JSON.stringify(updatedSchema)
+					};
+				} catch (err) {
+					return { ...schemas, [id]: json }
+				}
+			}, {});
+
+			return {
+				...container,
+				jsonSchema: updatedSchemas
+			};
+		} catch (err) {
+			return container;
+		}
+	});
+};
+
+
+const handleRef = externalDefinitions => field => {
+	if (!field.$ref) {
+		return field;
+	}
+	const ref = handleReferencePath(externalDefinitions, field);
+	if (!ref.$ref) {
+		return ref;
+	}
+
+	return { ...field, ...ref }; 
+};

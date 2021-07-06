@@ -6,6 +6,7 @@ const { mapParameter } = require('./componentsHelpers/parametersHelper');
 const { mapRequestBody } = require('./componentsHelpers/requestBodiesHelper');
 const { mapResponse } = require('./componentsHelpers/responsesHelper');
 const { hasRef, getRef } = require('./typeHelper');
+const { commentDeactivatedItemInner } = require('./commentsHelper');
 
 function getPaths(containers, containersIdsForCallbacks = []) {
 	return containers
@@ -46,6 +47,7 @@ function getRequestData(collections, containers, containerId, containersPath = [
 	return collections
 		.filter(collection => collection.entityType === 'request')
 		.map(data => {
+			const isRequestActivated = data.isActivated && isPathActivated;
 			const requestBodyPropKeyword = getRequestBodyPropKeyword(data.properties);
 			let request = {
 				tags: commonHelper.mapArrayFieldByName(data.tags, 'tag'),
@@ -53,7 +55,10 @@ function getRequestData(collections, containers, containerId, containersPath = [
 				description: data.description,
 				externalDocs: commonHelper.mapExternalDocs(data.externalDocs),
 				operationId: data.operationId,
-				parameters: mapRequestParameters(get(data, 'properties.parameters'))
+				parameters: mapRequestParameters(
+					get(data, 'properties.parameters'),
+					isRequestActivated
+				)
 			};
 			const extensions = getExtensions(data.scopesExtensions);
 
@@ -61,18 +66,28 @@ function getRequestData(collections, containers, containerId, containersPath = [
 				request.requestBody = mapRequestBody(
 					get(data.properties, requestBodyPropKeyword),
 					get(data, 'required', []).includes(requestBodyPropKeyword),
+					isRequestActivated
 				);
 			}
 
 			request = {
 				...request,
-				responses: mapResponses(collections, data.GUID, isPathActivated && data.isActivated),
-				callbacks: getCallbacks(get(data, 'properties.callbacks'), containers, containerId, containersPath),
+				responses: mapResponses(
+					collections,
+					data.GUID,
+					isRequestActivated
+				),
+				callbacks: getCallbacks(
+					get(data, 'properties.callbacks'),
+					containers,
+					containerId,
+					containersPath
+				),
 				deprecated: data.deprecated,
 				security: commonHelper.mapSecurity(data.security),
 				servers: getServers(data.servers),
 				methodName: data.collectionName,
-				isActivated: data.isActivated
+				isActivated: data.isActivated,
 			};
 
 			return Object.assign({}, request, extensions);
@@ -93,15 +108,14 @@ function getRequestData(collections, containers, containerId, containersPath = [
 		}, {});
 }
 
-function mapRequestParameters(parameters) {
+function mapRequestParameters(parameters, isParentActivated = false) {
 	if (!parameters || !parameters.items) {
 		return;
 	}
 	if (Array.isArray(parameters.items)) {
-		return parameters.items.map(item => mapParameter(item));
+		return parameters.items.map(item => mapParameter(item, false, isParentActivated));
 	}
-
-	return [mapParameter(parameters.items)];
+	return [mapParameter(parameters.items, false, isParentActivated)];
 }
 
 function mapResponses(collections, collectionId, isParentActivated) {

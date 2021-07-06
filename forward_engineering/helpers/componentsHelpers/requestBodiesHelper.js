@@ -2,6 +2,8 @@ const get = require('lodash.get');
 const { getContent } = require('./parametersHelper');
 const getExtensions = require('../extensionsHelper');
 const { getRef, hasRef } = require('../typeHelper');
+const { commentDeactivatedItemInner } = require('../commentsHelper');
+const { activateItem } = require('../commonHelper');
 
 function getRequestBodies(data) {
 	if (!data || !data.properties) {
@@ -12,7 +14,7 @@ function getRequestBodies(data) {
         .map(([key, value]) => {
             return {
                 key,
-                value: mapRequestBody(value, get(data, 'required', []).includes(key))
+                value: mapRequestBody(activateItem(value), get(data, 'required', []).includes(key), true)
             };
         })
         .reduce((acc, { key, value }) => {
@@ -21,15 +23,15 @@ function getRequestBodies(data) {
         }, {});
 }
 
-function mapRequestBody(data, required) {
+function mapRequestBody(data, required, isParentActivated = false) {
     if (!data) {
         return;
     }
     if (hasRef(data)) {
-		return getRef(data);
+		return commentDeactivatedItemInner(getRef(data), data.isActivated, isParentActivated);
 	}
 
-    const content = getContent(data);
+    const content = getContent(data, data.isActivated && isParentActivated);
     if (!content) {
         return;
     }
@@ -41,7 +43,7 @@ function mapRequestBody(data, required) {
     }
     const extensions = getExtensions(data.scopesExtensions);
 
-    return Object.assign({}, requestBody, extensions);
+    return commentDeactivatedItemInner(Object.assign({}, requestBody, extensions), data.isActivated, isParentActivated);
 }
 
 module.exports = {

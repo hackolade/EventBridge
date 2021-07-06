@@ -66,12 +66,12 @@ const getValidatorErrors = (error) => {
 const validate = (script, options = {}) => new Promise((resolve, reject) => {
 	SwaggerParser.validate(script, options, (err, api) => {
 		const errors = getValidatorErrors(err).concat(checkPathParameters(script));
-
+		
 		if (errors.length === 0) {
 			return resolve([{
 				type: 'success',
 				label: '',
-				title: 'EventBridge schema is valid',
+				title: 'OpenAPI schema is valid',
 				context: {
 					swagger: api.swagger,
 					host: api.host,
