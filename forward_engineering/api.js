@@ -57,7 +57,7 @@ module.exports = {
 			const script = buildAWSCLIScript(modelMetadata, JSON.parse(schema), data.options);
 			return cb(null, script);
 		} catch (err) {
-			logger.log('error', { error: err }, 'OpenAPI FE Error');
+			logger.log('error', { error: err }, 'EventBridge FE Error');
 			cb(err);
 		}
 	},
