@@ -72,7 +72,10 @@
             "enableStackedNestedCollections": true,
 			"externalDefinitionsFromTargetSchema": true,
 			"apiTarget": true,
-            "openModelDefinitionsTabIfNoCollections": true
+            "openModelDefinitionsTabIfNoCollections": true,
+            "displayOptions": {
+				"hideNonNullableAttributes": true
+			}
         }
     },
     "description": "Hackolade plugin for AWS EventBridge Schema Registry",
