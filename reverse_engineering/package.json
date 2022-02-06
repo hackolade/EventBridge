@@ -12,5 +12,6 @@
     "node-uuid": "^1.4.7"
   },
   "type": "multi",
-  "installed": true
+  "installed": true,
+  "helpUrl": "https://hackolade.com/help/ConnecttoEventBridgeSchemaRegist.html"
 }

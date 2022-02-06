@@ -15,6 +15,7 @@
             "maxSelectedItems": 1,
             "disableParentItems": true,
             "collectionHasVersions": true
-        }
+        },
+		"helpUrl": "https://hackolade.com/help/ConnecttoEventBridgeSchemaRegist.html"
     }
 ]
