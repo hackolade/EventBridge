@@ -26,13 +26,17 @@ module.exports = {
 
 			const containersIdsFromCallbacks = commonHelper.getContainersIdsForCallbacks(data);
 
+			const resolveApiExternalRefs = data.options?.additionalOptions?.find(
+				option => option.id === 'resolveApiExternalRefs',
+			)?.value;
+
 			const info = getInfo(data.modelData[0]);
 			const servers = getServers(modelServers);
 			const externalDefinitions = JSON.parse(data.externalDefinitions || '{}').properties || {};
-			const containers = handleRefInContainers(data.containers, externalDefinitions);
+			const containers = handleRefInContainers(data.containers, externalDefinitions, resolveApiExternalRefs);
 			const paths = getPaths(containers, containersIdsFromCallbacks);
 			const definitions = JSON.parse(data.modelDefinitions) || {};
-			const definitionsWithHandledReferences = mapJsonSchema(definitions, handleRef(externalDefinitions));
+			const definitionsWithHandledReferences = mapJsonSchema(definitions, handleRef(externalDefinitions, resolveApiExternalRefs));
 			const components = getComponents(definitionsWithHandledReferences, data.containers);
 			const security = commonHelper.mapSecurity(modelSecurity);
 			const tags = commonHelper.mapTags(modelTags);
@@ -222,13 +226,13 @@ const getSchemasInstance = (connectionInfo) => {
 	return new aws.Schemas({apiVersion: '2019-12-02'});
 }
 
-const handleRefInContainers = (containers, externalDefinitions) => {
+const handleRefInContainers = (containers, externalDefinitions, resolveApiExternalRefs) => {
 	return containers.map(container => {
 		try {
 			const updatedSchemas = Object.keys(container.jsonSchema).reduce((schemas, id) => {
 				const json = container.jsonSchema[id];
 				try {
-					const updatedSchema = mapJsonSchema(JSON.parse(json), handleRef(externalDefinitions));
+					const updatedSchema = mapJsonSchema(JSON.parse(json), handleRef(externalDefinitions, resolveApiExternalRefs));
 
 					return {
 						...schemas,
@@ -250,11 +254,11 @@ const handleRefInContainers = (containers, externalDefinitions) => {
 };
 
 
-const handleRef = externalDefinitions => field => {
+const handleRef = (externalDefinitions, resolveApiExternalRefs) => field => {
 	if (!field.$ref) {
 		return field;
 	}
-	const ref = handleReferencePath(externalDefinitions, field);
+	const ref = handleReferencePath(externalDefinitions, field, resolveApiExternalRefs);
 	if (!ref.$ref) {
 		return ref;
 	}

@@ -13,5 +13,12 @@
 		"entity": false,
 		"container": false,
 		"model": true
-	}
+	},
+	"additionalOptions": [
+		{
+			"id": "resolveApiExternalRefs",
+			"name": "Resolve external references",
+			"value": false
+		}
+	]
 }
