@@ -9,14 +9,14 @@ const PATH_START_INDEX = 4;
 
 const { prepareReferenceName } = require('../utils/utils');
 
-const handleReferencePath = (externalDefinitions, { $ref: ref }) => {
+const handleReferencePath = (externalDefinitions, { $ref: ref }, resolveApiExternalRefs) => {
 	if (ref.startsWith('#')) {
 		ref = ref.replace('#model/definitions', '#/components');
 
 		return { $ref: prepareReferenceName(ref) };
 	}
 
-	const [ pathToFile, relativePath] = ref.split('#/');
+	const [pathToFile, relativePath] = ref.split('#/');
 	if (!relativePath) {
 		return { $ref: prepareReferenceName(ref) };
 	}
@@ -26,9 +26,7 @@ const handleReferencePath = (externalDefinitions, { $ref: ref }) => {
 		return { $ref: prepareReferenceName(ref) };
 	}
 
-	if (externalDefinition.fileType === 'targetSchema') {
-		return { $ref: updateOpenApiPath(pathToFile, relativePath) };
-	} else if (externalDefinition.fileType === 'hackoladeSchema') {
+	if (externalDefinition.fileType === 'hackoladeSchema' || resolveApiExternalRefs) {
 		return mapJsonSchema(externalDefinition, field => {
 			if (!field.$ref || field.type === 'reference') {
 				return field;
@@ -39,11 +37,13 @@ const handleReferencePath = (externalDefinitions, { $ref: ref }) => {
 
 			return definition;
 		});
-	}  else if (externalDefinition.fileType === 'jsonSchema') {
-		return { $ref: fixJsonSchemaPath(pathToFile, relativePath) };;
+	} else if (externalDefinition.fileType === 'targetSchema') {
+		return { $ref: updateOpenApiPath(pathToFile, relativePath) };
+	} else if (externalDefinition.fileType === 'jsonSchema') {
+		return { $ref: fixJsonSchemaPath(pathToFile, relativePath) };
 	}
 
-	return  { $ref: prepareReferenceName(ref) };
+	return { $ref: prepareReferenceName(ref) };
 };
 
 const fixJsonSchemaPath = (pathToFile, relativePath) => {
