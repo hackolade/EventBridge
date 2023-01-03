@@ -66,7 +66,10 @@
             "disableDefinitions": {
                 "internal": true
             },
-            "disableRelationships": true,
+            "disableRelationships": false,
+            "relationships": {
+            "definitionRelationships": true
+            },
             "disableJsonPreview": false,
             "enableErdToggle": true,
             "enableStackedNestedCollections": true,
@@ -74,8 +77,12 @@
 			"apiTarget": true,
             "openModelDefinitionsTabIfNoCollections": true,
             "displayOptions": {
-				"hideNonNullableAttributes": true
-			}
+                "hideNonNullableAttributes": true
+            },
+            "erdDefinitions": {
+                "enabled": true,
+                "propertyNames": ["schemas"]
+            }
         }
     },
     "description": "Hackolade plugin for AWS EventBridge Schema Registry",
