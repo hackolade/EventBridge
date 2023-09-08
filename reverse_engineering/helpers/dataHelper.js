@@ -577,6 +577,21 @@ const convertFormatToMode = schema => {
 	}
 };
 
+const handleSchemaExtensions = (schema) => {
+	const mappedExtensionsObject = getExtensionsObject(schema);
+	if (!Array.isArray(mappedExtensionsObject.scopesExtensions) || mappedExtensionsObject.scopesExtensions.length === 0) {
+		return schema;
+	}
+	const schemaWithoutExtensions = Object.keys(schema).reduce((accumulator, property) => {
+		if (property.startsWith(EXTENSION_SYMBOL)) {
+			return accumulator;
+		}
+		return Object.assign({}, accumulator, {[property]: schema[property]});
+	}, {});
+
+	return Object.assign({}, schemaWithoutExtensions, mappedExtensionsObject);
+};
+
 const handleSchemaProps = (schema, fieldOrder) => {
 	if (!schema) {
 		schema = {
@@ -585,7 +600,8 @@ const handleSchemaProps = (schema, fieldOrder) => {
 	}
 
 	const fixedSchema = convertFormatToMode(setMissedType(schema));
-	const schemaWithAdditionalPropertiesData = handleAdditionalProperties(fixedSchema);
+	const schemaWithExtensions = handleSchemaExtensions(fixedSchema);
+	const schemaWithAdditionalPropertiesData = handleAdditionalProperties(schemaWithExtensions);
 	const schemaWithChoices = handleSchemaChoices(schemaWithAdditionalPropertiesData, fieldOrder);
 	const reorderedSchema = commonHelper.reorderFields(schemaWithChoices, fieldOrder);
 	const schemaWithHandledProperties = Object.keys(reorderedSchema).reduce((accumulator, property) => {
@@ -623,7 +639,8 @@ const handleDefinitionSchemaProps = (schema, fieldOrder) => {
 
 	const fixedSchema = convertFormatToMode(setMissedType(schema));
 	const schemaWithAdditionalPropertiesData = handleAdditionalProperties(fixedSchema);
-	const reorderedSchema = commonHelper.reorderFields(schemaWithAdditionalPropertiesData, fieldOrder);
+	const schemaWithExtensions = handleSchemaExtensions(schemaWithAdditionalPropertiesData);
+	const reorderedSchema = commonHelper.reorderFields(schemaWithExtensions, fieldOrder);
 	const schemaWithHandledProperties = Object.keys(reorderedSchema).reduce((accumulator, property) => {
 		if (property === 'example') {
 			property = 'sample';

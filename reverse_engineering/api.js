@@ -232,7 +232,7 @@ const getOpenAPISchema = (data, filePath) => new Promise((resolve, reject) => {
         if (isValidOpenAPISchema) {
             return resolve(openAPISchemaWithModelName);
         } else {
-            return reject({ error: errorHelper.getValidationError(new Error('Selected file is not a valid OpenAPI 3.0.2 schema')) });
+            return reject({ error: errorHelper.getValidationError(new Error('Selected file is not a valid OpenAPI 3.0.x schema')) });
         }
     } catch (error) {
         return reject({ error: errorHelper.getParseError(error) });
