@@ -530,7 +530,32 @@ making sure that you maintain a proper JSON format.
 				],
 				"enableForReference": true
 			},
-			"comments"
+			"comments",
+			{
+				"propertyName": "extensions",
+				"propertyType": "group",
+				"propertyKeyword": "scopesExtensions",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "pattern",
+						"propertyKeyword": "extensionPattern",
+						"shouldValidate": true,
+						"propertyType": "text",
+						"regex":"^x-"
+					},
+					{
+						"propertyName": "value",
+						"propertyKeyword": "extensionValue",
+						"propertyValidate": false,
+						"propertyTooltip": "Popup for multi-line text entry",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					}
+				]
+			}
 		],
 		"number": [
 			{
@@ -809,7 +834,32 @@ making sure that you maintain a proper JSON format.
 				],
 				"enableForReference": true
 			},
-			"comments"
+			"comments",
+			{
+				"propertyName": "extensions",
+				"propertyType": "group",
+				"propertyKeyword": "scopesExtensions",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "pattern",
+						"propertyKeyword": "extensionPattern",
+						"shouldValidate": true,
+						"propertyType": "text",
+						"regex":"^x-"
+					},
+					{
+						"propertyName": "value",
+						"propertyKeyword": "extensionValue",
+						"propertyValidate": false,
+						"propertyTooltip": "Popup for multi-line text entry",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					}
+				]
+			}
 		],
 		"integer": [
 			{
@@ -1088,7 +1138,32 @@ making sure that you maintain a proper JSON format.
 				],
 				"enableForReference": true
 			},
-			"comments"
+			"comments",
+			{
+				"propertyName": "extensions",
+				"propertyType": "group",
+				"propertyKeyword": "scopesExtensions",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "pattern",
+						"propertyKeyword": "extensionPattern",
+						"shouldValidate": true,
+						"propertyType": "text",
+						"regex":"^x-"
+					},
+					{
+						"propertyName": "value",
+						"propertyKeyword": "extensionValue",
+						"propertyValidate": false,
+						"propertyTooltip": "Popup for multi-line text entry",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					}
+				]
+			}
 		],
 		"boolean": [
 			{
@@ -1219,7 +1294,32 @@ making sure that you maintain a proper JSON format.
 					]
 				}
 			},
-			"comments"
+			"comments",
+			{
+				"propertyName": "extensions",
+				"propertyType": "group",
+				"propertyKeyword": "scopesExtensions",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "pattern",
+						"propertyKeyword": "extensionPattern",
+						"shouldValidate": true,
+						"propertyType": "text",
+						"regex":"^x-"
+					},
+					{
+						"propertyName": "value",
+						"propertyKeyword": "extensionValue",
+						"propertyValidate": false,
+						"propertyTooltip": "Popup for multi-line text entry",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					}
+				]
+			}
 		],
 		"array": [
 			{
@@ -1429,6 +1529,45 @@ making sure that you maintain a proper JSON format.
 					"pipes"
 				],
 				"enableForReference": true
+			},
+			{
+				"propertyName": "example (deprecated)",
+				"propertyKeyword": "sample",
+				"propertyType": "details",
+				"template": "textAreaJson",
+				"dependency": {
+					"key": "subtype",
+					"value": "schema"
+				}
+			},
+			{
+				"propertyName": "extensions",
+				"propertyType": "group",
+				"propertyKeyword": "scopesExtensions",
+				"shouldValidate": true,
+				"propertyTooltip": "",
+				"structure": [
+					{
+						"propertyName": "pattern",
+						"propertyKeyword": "extensionPattern",
+						"shouldValidate": true,
+						"propertyType": "text",
+						"regex":"^x-"
+					},
+					{
+						"propertyName": "value",
+						"propertyKeyword": "extensionValue",
+						"propertyValidate": false,
+						"propertyTooltip": "Popup for multi-line text entry",
+						"propertyType": "details",
+						"template": "textarea",
+						"markdown": false
+					}
+				],
+				"dependency": {
+					"key": "subtype",
+					"value": "schema"
+				}
 			},
 			"comments"
 		],
