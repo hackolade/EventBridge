@@ -34,7 +34,8 @@
 						"key": "childType",
 						"value": "componentObject"
 					}
-				},{
+				},
+				{
 					"value": {
 						"disableAppend": true,
 						"disableDelete": true,
@@ -42,15 +43,18 @@
 						"disableReference": true
 					},
 					"dependency": {
-						"type" : "and",
-						"values": [{
-							"key": "childType",
-							"value": "expression"
-						}, {
-							"level": "parent",
-							"key": "childType",
-							"value": "link"
-						}]
+						"type": "and",
+						"values": [
+							{
+								"key": "childType",
+								"value": "expression"
+							},
+							{
+								"level": "parent",
+								"key": "childType",
+								"value": "link"
+							}
+						]
 					}
 				},
 				{
@@ -63,7 +67,8 @@
 						"key": "subtype",
 						"value": "structuralSchema"
 					}
-				},{
+				},
+				{
 					"value": {
 						"disableAdd": false,
 						"disableDelete": false,
@@ -77,7 +82,8 @@
 							"value": "anyParameter"
 						}
 					]
-				},{
+				},
+				{
 					"value": {
 						"disableDelete": false,
 						"disableAppend": false,
@@ -85,9 +91,9 @@
 						"displayNameFromField": false
 					},
 					"dependency": {
-							"level": "parent",
-							"key": "childType",
-							"value": "componentObject"
+						"level": "parent",
+						"key": "childType",
+						"value": "componentObject"
 					}
 				},
 				{
@@ -106,110 +112,132 @@
 						"disableReference": false,
 						"resetInsteadOfDelete": false
 					},
-					"dependency": {	
+					"dependency": {
 						"level": "parent",
 						"key": "subtype",
 						"value": "schema"
 					}
-				},{
+				},
+				{
 					"value": {
 						"disableAppend": true,
 						"disableReference": true
 					},
-					"dependency": [{
-						"type": "and",
-						"values": [{
-							"key": "childType",
-							"value": "object"
-						},{
-							"type": "not",
-							"values": {
-								"key": "subtype",
-								"value": "schema"
-							}
-						}]
-					}]
+					"dependency": [
+						{
+							"type": "and",
+							"values": [
+								{
+									"key": "childType",
+									"value": "object"
+								},
+								{
+									"type": "not",
+									"values": {
+										"key": "subtype",
+										"value": "schema"
+									}
+								}
+							]
+						}
+					]
 				}
 			]
 		},
 		"name": {
 			"value": "New field",
-			"valueDependencies": [{
-				"value": "requestBody",
-				"dependency": {
-					"key": "childType",
-					"value": "requestBody" 
+			"valueDependencies": [
+				{
+					"value": "requestBody",
+					"dependency": {
+						"key": "childType",
+						"value": "requestBody"
+					}
+				},
+				{
+					"value": "MIMEtype/subtype",
+					"dependency": {
+						"level": "parent",
+						"key": "subtype",
+						"value": "media"
+					}
+				},
+				{
+					"value": "response",
+					"dependency": {
+						"level": "parent",
+						"key": "subtype",
+						"value": "response"
+					}
+				},
+				{
+					"value": "parameterName",
+					"dependency": {
+						"level": "parent",
+						"key": "subtype",
+						"value": "anyParameter"
+					}
+				},
+				{
+					"value": "schema",
+					"dependency": {
+						"level": "parent",
+						"key": "subtype",
+						"value": "structuralSchema"
+					}
+				},
+				{
+					"value": "schema",
+					"dependency": {
+						"level": "parent",
+						"key": "type",
+						"value": "subschema"
+					}
 				}
-			},{
-				"value": "MIMEtype/subtype",
-				"dependency": {
-					"level": "parent",
-					"key": "subtype",
-					"value": "media" 
-				}
-			},{
-				"value": "response",
-				"dependency": {
-					"level": "parent",
-					"key": "subtype",
-					"value": "response" 
-				}
-			},{
-				"value": "parameterName",
-				"dependency": {
-					"level": "parent",
-					"key": "subtype",
-					"value": "anyParameter" 
-				}
-			},{
-				"value": "schema",
-				"dependency": {
-					"level": "parent",
-					"key": "subtype",
-					"value": "structuralSchema" 
-				}
-			},{
-				"value": "schema",
-				"dependency": {
-					"level": "parent",
-					"key": "type",
-					"value": "subschema" 
-				}
-			}]
+			]
 		},
 		"structureType": {
-			"valueDependencies": [{
-				"value": true,
-				"dependency": [
-					{
-						"key": "subtype",
-						"value": "anyParameter" 
-					},
-					{
-						"type": "and",
-						"values": [{
-							"key": "childType",
-							"value": "object"
-						},{
-							"type": "not",
-							"values": [{
-								"key": "subtype",
-								"value": "schema"
-							}]
-						}]
-					}]
-			}]
+			"valueDependencies": [
+				{
+					"value": true,
+					"dependency": [
+						{
+							"key": "subtype",
+							"value": "anyParameter"
+						},
+						{
+							"type": "and",
+							"values": [
+								{
+									"key": "childType",
+									"value": "object"
+								},
+								{
+									"type": "not",
+									"values": [
+										{
+											"key": "subtype",
+											"value": "schema"
+										}
+									]
+								}
+							]
+						}
+					]
+				}
+			]
 		},
 		"schemeType": "apiKey",
 		"required": {
-			"valueDependencies": [{
-				"value": true,
-				"dependency": 
-					{
+			"valueDependencies": [
+				{
+					"value": true,
+					"dependency": {
 						"key": "childType",
 						"value": "parameter (path)"
 					}
-			}],
+				}
+			],
 			"value": false
 		}
 	},

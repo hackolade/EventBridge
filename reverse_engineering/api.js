@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 const aws = require('aws-sdk');
 const fs = require('fs');
@@ -16,26 +16,29 @@ module.exports = {
 	connect: async (connectionInfo, logger, cb, app) => {
 		const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 		const sslOptions = await getSslOptions(connectionInfo);
-		const httpOptions = sslOptions.ssl ? {
-			httpOptions: {
-				agent: new https.Agent({
-					rejectUnauthorized: true,
-					...sslOptions
-				})},
-				...sslOptions
-			} : {};
+		const httpOptions = sslOptions.ssl
+			? {
+					httpOptions: {
+						agent: new https.Agent({
+							rejectUnauthorized: true,
+							...sslOptions,
+						}),
+					},
+					...sslOptions,
+				}
+			: {};
 		aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken, ...httpOptions });
-        const schemasInstance = new aws.Schemas({apiVersion: '2019-12-02'});
+		const schemasInstance = new aws.Schemas({ apiVersion: '2019-12-02' });
 		cb(schemasInstance);
 	},
 
-	disconnect: function(connectionInfo, cb){
+	disconnect: function (connectionInfo, cb) {
 		cb();
 	},
 
-	testConnection: function(connectionInfo, logger, cb, app) {
+	testConnection: function (connectionInfo, logger, cb, app) {
 		logInfo('Test connection', connectionInfo, logger);
-		const connectionCallback = async (schemasInstance) => {
+		const connectionCallback = async schemasInstance => {
 			try {
 				await schemasInstance.listRegistries().promise();
 				cb();
@@ -48,9 +51,9 @@ module.exports = {
 		this.connect(connectionInfo, logger, connectionCallback, app);
 	},
 
-	getDbCollectionsNames: function(connectionInfo, logger, cb, app) {
-		const connectionCallback = async (schemasInstance) => {
-            this.schemasInstance = schemasInstance;
+	getDbCollectionsNames: function (connectionInfo, logger, cb, app) {
+		const connectionCallback = async schemasInstance => {
+			this.schemasInstance = schemasInstance;
 			try {
 				const registries = await listRegistries(schemasInstance);
 				const registrySchemas = registries.map(async registry => {
@@ -64,16 +67,16 @@ module.exports = {
 						dbName: registry.RegistryName,
 						dbCollections: schemaNames,
 						isEmpty: schemaNames.length === 0,
-						dbCollectionsChildrenCount
+						dbCollectionsChildrenCount,
 					};
 				});
 				const result = await Promise.all(registrySchemas);
 				cb(null, result);
-			} catch(err) {
+			} catch (err) {
 				logger.log(
 					'error',
 					{ message: err.message, stack: err.stack, error: err },
-					'Retrieving databases and tables information'
+					'Retrieving databases and tables information',
 				);
 				cb({ message: err.message, stack: err.stack });
 			}
@@ -83,27 +86,30 @@ module.exports = {
 		this.connect(connectionInfo, logger, connectionCallback, app);
 	},
 
-	getDbCollectionsData: function(data, logger, cb, app) {
+	getDbCollectionsData: function (data, logger, cb, app) {
 		logger.log('info', data, 'Retrieving schema', data.hiddenKeys);
-		
+
 		const { collectionData } = data;
 		const registries = collectionData.dataBaseNames;
-        const schemas = collectionData.collections;
-        const registryName = registries[0];
+		const schemas = collectionData.collections;
+		const registryName = registries[0];
 		const schemaName = schemas[registryName][0];
-		const schemaVersion = collectionData.collectionVersion[registryName] &&
+		const schemaVersion =
+			collectionData.collectionVersion[registryName] &&
 			collectionData.collectionVersion[registryName][schemaName];
 
 		const getSchema = async () => {
 			try {
-				const registryData = await this.schemasInstance.describeRegistry({ RegistryName: registryName }).promise();
-                const schemaData = await this.schemasInstance
-                  .describeSchema({
-                    RegistryName: registryName,
-                    SchemaName: schemaName,
-                    SchemaVersion: schemaVersion
-                  })
-                  .promise();
+				const registryData = await this.schemasInstance
+					.describeRegistry({ RegistryName: registryName })
+					.promise();
+				const schemaData = await this.schemasInstance
+					.describeSchema({
+						RegistryName: registryName,
+						SchemaName: schemaName,
+						SchemaVersion: schemaVersion,
+					})
+					.promise();
 				const openAPISchema = JSON.parse(schemaData.Content);
 				const { modelData, modelContent, definitions } = convertOpenAPISchemaToHackolade(openAPISchema);
 				const eventbridgeModelLevelData = {
@@ -117,10 +123,10 @@ module.exports = {
 					EBSRSchemaTags: mapEBSRTags(schemaData.Tags),
 					EBSRversionCreatedDate: schemaData.VersionCreatedDate,
 					EBSRlastModified: schemaData.LastModified,
-					modelName: schemaName
+					modelName: schemaName,
 				};
 				const modelLevelData = { ...modelData, ...eventbridgeModelLevelData };
-                const modelDefinitions = JSON.parse(definitions);
+				const modelDefinitions = JSON.parse(definitions);
 				const packagesData = mapPackageData(modelContent);
 				if (packagesData.length === 0) {
 					packagesData[0] = { modelDefinitions };
@@ -128,60 +134,73 @@ module.exports = {
 					packagesData[0] = { ...packagesData[0], modelDefinitions };
 				}
 
-                cb(null, packagesData, modelLevelData);
-			} catch(err) {
+				cb(null, packagesData, modelLevelData);
+			} catch (err) {
 				logger.log(
 					'error',
 					{ message: err.message, stack: err.stack, error: err },
-					'Retrieving databases and tables information'
+					'Retrieving databases and tables information',
 				);
 				cb({ message: err.message, stack: err.stack });
 			}
 		};
 
 		getSchema();
-    },
-    
-	reFromFile(data, logger, callback) {
-        commonHelper.getFileData(data.filePath).then(fileData => {
-            return getOpenAPISchema(fileData, data.filePath);
-        }).then(openAPISchema => {
-            const fieldOrder = data.fieldInference.active;
-            return handleOpenAPIData(openAPISchema, fieldOrder);
-        }).then(reversedData => {
-            return callback(null, reversedData.hackoladeData, reversedData.modelData, [], 'multipleSchema');
-        }, ({ error, openAPISchema }) => {
-			if (!openAPISchema) {
-				return this.handleErrors(error, logger, callback);
-			}
+	},
 
-			validationHelper.validate(filterSchema(openAPISchema), { resolve: { external: false }})
-				.then((messages) => {
-					if (!Array.isArray(messages) || !messages.length) {
-						this.handleErrors(error, logger, callback);
+	reFromFile(data, logger, callback) {
+		commonHelper
+			.getFileData(data.filePath)
+			.then(fileData => {
+				return getOpenAPISchema(fileData, data.filePath);
+			})
+			.then(openAPISchema => {
+				const fieldOrder = data.fieldInference.active;
+				return handleOpenAPIData(openAPISchema, fieldOrder);
+			})
+			.then(
+				reversedData => {
+					return callback(null, reversedData.hackoladeData, reversedData.modelData, [], 'multipleSchema');
+				},
+				({ error, openAPISchema }) => {
+					if (!openAPISchema) {
+						return this.handleErrors(error, logger, callback);
 					}
 
-					const message = `${messages[0].label}: ${messages[0].title}`;
-					const errorData = error.error || {};
+					validationHelper
+						.validate(filterSchema(openAPISchema), { resolve: { external: false } })
+						.then(messages => {
+							if (!Array.isArray(messages) || !messages.length) {
+								this.handleErrors(error, logger, callback);
+							}
 
-					this.handleErrors(errorHelper.getValidationError({ stack: errorData.stack, message }), logger, callback);
-				})
-				.catch(err => {
-					this.handleErrors(error, logger, callback);
-				});
-		}).catch(errorObject => {
-            this.handleErrors(errorObject, logger, callback);
-		});
+							const message = `${messages[0].label}: ${messages[0].title}`;
+							const errorData = error.error || {};
+
+							this.handleErrors(
+								errorHelper.getValidationError({ stack: errorData.stack, message }),
+								logger,
+								callback,
+							);
+						})
+						.catch(err => {
+							this.handleErrors(error, logger, callback);
+						});
+				},
+			)
+			.catch(errorObject => {
+				this.handleErrors(errorObject, logger, callback);
+			});
 	},
 
 	handleErrors(errorObject, logger, callback) {
 		const { error, title } = errorObject;
-		const handledError =  commonHelper.handleErrorObject(error, title);
+		const handledError = commonHelper.handleErrorObject(error, title);
 		logger.log('error', handledError, title);
 		callback(handledError);
 	},
 
-    adaptJsonSchema,
+	adaptJsonSchema,
 
 	resolveExternalDefinitionPath(data, logger, callback) {
 		resolveExternalDefinitionPathHelper.resolvePath(data, callback);
@@ -197,88 +216,98 @@ module.exports = {
 						SchemaName: entityName,
 					})
 					.promise();
-				const schemaVersions = schemaVersionsResponse.SchemaVersions.map(({ SchemaVersion }) => ({ name: SchemaVersion }));
+				const schemaVersions = schemaVersionsResponse.SchemaVersions.map(({ SchemaVersion }) => ({
+					name: SchemaVersion,
+				}));
 				callback(null, { collectionVersions: schemaVersions });
 			} catch (err) {
 				logger.log(
 					'error',
 					{ message: err.message, stack: err.stack, error: err },
-					'Retrieving schema versions'
+					'Retrieving schema versions',
 				);
 				callback({ message: err.message, stack: err.stack });
 			}
-		}
+		};
 
 		getSchemaVersions();
-	}
+	},
 };
 
 const convertOpenAPISchemaToHackolade = (openAPISchema, fieldOrder) => {
-    const modelData = dataHelper.getModelData(openAPISchema);
+	const modelData = dataHelper.getModelData(openAPISchema);
 	const components = openAPISchema.components;
-    const definitions = dataHelper.getComponents(openAPISchema.components, fieldOrder);
+	const definitions = dataHelper.getComponents(openAPISchema.components, fieldOrder);
 	const callbacksComponent = components && components.callbacks;
-    const modelContent = dataHelper.getModelContent(openAPISchema.paths || {}, fieldOrder, callbacksComponent);
-    return { modelData, modelContent, definitions };
+	const modelContent = dataHelper.getModelContent(openAPISchema.paths || {}, fieldOrder, callbacksComponent);
+	return { modelData, modelContent, definitions };
 };
 
-const getOpenAPISchema = (data, filePath) => new Promise((resolve, reject) => {
-    const { extension, fileName } = commonHelper.getPathData(data, filePath);
+const getOpenAPISchema = (data, filePath) =>
+	new Promise((resolve, reject) => {
+		const { extension, fileName } = commonHelper.getPathData(data, filePath);
 
-    try {
-        const openAPISchemaWithModelName = dataHelper.getOpenAPIJsonSchema(data, fileName, extension);
-        const isValidOpenAPISchema = dataHelper.validateOpenAPISchema(openAPISchemaWithModelName);
+		try {
+			const openAPISchemaWithModelName = dataHelper.getOpenAPIJsonSchema(data, fileName, extension);
+			const isValidOpenAPISchema = dataHelper.validateOpenAPISchema(openAPISchemaWithModelName);
 
-        if (isValidOpenAPISchema) {
-            return resolve(openAPISchemaWithModelName);
-        } else {
-            return reject({ error: errorHelper.getValidationError(new Error('Selected file is not a valid OpenAPI 3.0.x schema')) });
-        }
-    } catch (error) {
-        return reject({ error: errorHelper.getParseError(error) });
-    }
-});
-
-const handleOpenAPIData = (openAPISchema, fieldOrder) => new Promise((resolve, reject) => {
-    try {
-        const convertedData = convertOpenAPISchemaToHackolade(openAPISchema, fieldOrder);
-        const { modelData, modelContent, definitions } = convertedData;
-        const hackoladeData = modelContent.containers.reduce((accumulator, container) => {
-            const currentEntities = modelContent.entities[container.name];
-            return [
-                ...accumulator, 
-                ...currentEntities.map(entity => {
-                    const packageData = {
-                        objectNames: {
-                            collectionName: entity.collectionName
-                        },
-                        doc: {
-                            dbName: container.name,
-                            collectionName: entity.collectionName,
-                            modelDefinitions: definitions,
-                            bucketInfo: container
-                        },
-                        jsonSchema: JSON.stringify(entity)
-                    };
-                    return packageData;
-                })
-            ];
-        }, []);
-		if (hackoladeData.length) {
-			return resolve({ hackoladeData, modelData });
+			if (isValidOpenAPISchema) {
+				return resolve(openAPISchemaWithModelName);
+			} else {
+				return reject({
+					error: errorHelper.getValidationError(
+						new Error('Selected file is not a valid OpenAPI 3.0.x schema'),
+					),
+				});
+			}
+		} catch (error) {
+			return reject({ error: errorHelper.getParseError(error) });
 		}
+	});
 
-		return resolve({
-			hackoladeData: [{
-				objectNames: {},
-				doc: { modelDefinitions: definitions }
-			}],
-			modelData
-		});
-    } catch (error) {
-        return reject({ error: errorHelper.getConvertError(error), openAPISchema });
-    }
-});
+const handleOpenAPIData = (openAPISchema, fieldOrder) =>
+	new Promise((resolve, reject) => {
+		try {
+			const convertedData = convertOpenAPISchemaToHackolade(openAPISchema, fieldOrder);
+			const { modelData, modelContent, definitions } = convertedData;
+			const hackoladeData = modelContent.containers.reduce((accumulator, container) => {
+				const currentEntities = modelContent.entities[container.name];
+				return [
+					...accumulator,
+					...currentEntities.map(entity => {
+						const packageData = {
+							objectNames: {
+								collectionName: entity.collectionName,
+							},
+							doc: {
+								dbName: container.name,
+								collectionName: entity.collectionName,
+								modelDefinitions: definitions,
+								bucketInfo: container,
+							},
+							jsonSchema: JSON.stringify(entity),
+						};
+						return packageData;
+					}),
+				];
+			}, []);
+			if (hackoladeData.length) {
+				return resolve({ hackoladeData, modelData });
+			}
+
+			return resolve({
+				hackoladeData: [
+					{
+						objectNames: {},
+						doc: { modelDefinitions: definitions },
+					},
+				],
+				modelData,
+			});
+		} catch (error) {
+			return reject({ error: errorHelper.getConvertError(error), openAPISchema });
+		}
+	});
 
 const filterSchema = schema => {
 	delete schema.modelName;
@@ -295,9 +324,9 @@ const mapEBSRTags = (tags = {}) => {
 	return Object.entries(tags).reduce((acc, [key, value]) => {
 		return acc.concat({ EBSRtagKey: key, EBSRtagValue: value });
 	}, []);
-}
+};
 
-const mapPackageData = (data) => {
+const mapPackageData = data => {
 	return Object.entries(data.entities).reduce((acc, [containerName, containerEntities]) => {
 		const entities = containerEntities.map(entity => {
 			const { collectionName, properties, ...entityLevel } = entity;
@@ -309,16 +338,16 @@ const mapPackageData = (data) => {
 				entityLevel,
 				documents: [],
 				validation: {
-					jsonSchema: { properties }
-				}
+					jsonSchema: { properties },
+				},
 			};
 			return entityPackage;
 		});
 		return acc.concat(...entities);
 	}, []);
-}
+};
 
-const listRegistries = async (schemasInstance) => {
+const listRegistries = async schemasInstance => {
 	let { NextToken, Registries } = await schemasInstance.listRegistries().promise();
 	const registries = [...Registries];
 	let nextToken = NextToken;
@@ -328,20 +357,21 @@ const listRegistries = async (schemasInstance) => {
 		nextToken = NextToken;
 	}
 	return registries;
-}
+};
 
 const listSchemas = async (schemasInstance, registryName) => {
 	const { NextToken, Schemas } = await schemasInstance.listSchemas({ RegistryName: registryName }).promise();
 	const schemas = [...Schemas];
 	let nextToken = NextToken;
 	while (nextToken) {
-		const { NextToken, Schemas } =
-			await schemasInstance.listSchemas({ RegistryName: registryName, NextToken: nextToken }).promise();
+		const { NextToken, Schemas } = await schemasInstance
+			.listSchemas({ RegistryName: registryName, NextToken: nextToken })
+			.promise();
 		schemas.push(...Schemas);
 		nextToken = NextToken;
 	}
 	return schemas;
-}
+};
 
 const readCertificateFile = path => {
 	if (!path) {

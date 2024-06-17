@@ -10,7 +10,7 @@ const { getRegistryCreateCLIStatement, getSchemaCreateCLIStatement } = require('
 const { getApiStatements, getItemUpdateParamiters } = require('./helpers/awsCLIHelpers/applyToInstanceHelper');
 const handleReferencePath = require('./helpers/handleReferencePath');
 const mapJsonSchema = require('../reverse_engineering/helpers/adaptJsonSchema/mapJsonSchema');
-const path=require('path');
+const path = require('path');
 
 module.exports = {
 	generateModelScript(data, logger, cb) {
@@ -36,7 +36,10 @@ module.exports = {
 			const containers = handleRefInContainers(data.containers, externalDefinitions, resolveApiExternalRefs);
 			const paths = getPaths(containers, containersIdsFromCallbacks);
 			const definitions = JSON.parse(data.modelDefinitions) || {};
-			const definitionsWithHandledReferences = mapJsonSchema(definitions, handleRef(externalDefinitions, resolveApiExternalRefs));
+			const definitionsWithHandledReferences = mapJsonSchema(
+				definitions,
+				handleRef(externalDefinitions, resolveApiExternalRefs),
+			);
 			const components = getComponents(definitionsWithHandledReferences, data.containers);
 			const security = commonHelper.mapSecurity(modelSecurity);
 			const tags = commonHelper.mapTags(modelTags);
@@ -50,7 +53,7 @@ module.exports = {
 				components,
 				security,
 				tags,
-				externalDocs
+				externalDocs,
 			};
 			const extensions = getExtensions(data.modelData[0].scopesExtensions);
 
@@ -70,10 +73,11 @@ module.exports = {
 		const { script, targetScriptOptions } = data;
 		try {
 			const { schema } = getApiStatements(script);
-			let openAPISchema = JSON.parse(replaceRelativePathByAbsolute(schema.Content,targetScriptOptions));
+			let openAPISchema = JSON.parse(replaceRelativePathByAbsolute(schema.Content, targetScriptOptions));
 
-			validationHelper.validate(openAPISchema)
-				.then((messages) => {
+			validationHelper
+				.validate(openAPISchema)
+				.then(messages => {
 					cb(null, messages);
 				})
 				.catch(err => {
@@ -100,11 +104,11 @@ module.exports = {
 		try {
 			const { registry, schema } = getApiStatements(data.script);
 			const schemasInstance = getSchemasInstance(data);
-			
+
 			if (registry) {
 				try {
 					if (registry.Description) {
-						await schemasInstance.updateRegistry((getItemUpdateParamiters(registry))).promise();
+						await schemasInstance.updateRegistry(getItemUpdateParamiters(registry)).promise();
 					} else {
 						await schemasInstance.describeRegistry({ RegistryName: registry.RegistryName }).promise();
 					}
@@ -122,14 +126,13 @@ module.exports = {
 				} catch (err) {
 					if (err.code === NOT_FOUND_RESPONSE_CODE) {
 						await schemasInstance.createSchema(schema).promise();
-					}
-					else {
+					} else {
 						return callback(err);
 					}
 				}
 			}
 			callback();
-		} catch(err) {
+		} catch (err) {
 			callback(err);
 		}
 	},
@@ -144,27 +147,27 @@ module.exports = {
 			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Connection failed');
 			callback(err);
 		}
-	}
+	},
 };
 
-const replaceRelativePathByAbsolute=(script, options)=>{
-	const modelDirectory=options?options.modelDirectory:'';
-	if(!modelDirectory || typeof modelDirectory !== 'string'){
+const replaceRelativePathByAbsolute = (script, options) => {
+	const modelDirectory = options ? options.modelDirectory : '';
+	if (!modelDirectory || typeof modelDirectory !== 'string') {
 		return script;
 	}
-	return script.replace(/("\$ref":\s*)"(.*?(?<!\\))"/g, (match, refGroup, relativePath)=>{
-        const isAbsolutePath=relativePath.startsWith('file:');
-        const isInternetLink=relativePath.startsWith('http:') || relativePath.startsWith('https:');
-        const isModelRef=relativePath.startsWith('#');
+	return script.replace(/("\$ref":\s*)"(.*?(?<!\\))"/g, (match, refGroup, relativePath) => {
+		const isAbsolutePath = relativePath.startsWith('file:');
+		const isInternetLink = relativePath.startsWith('http:') || relativePath.startsWith('https:');
+		const isModelRef = relativePath.startsWith('#');
 
-        if(isAbsolutePath || isInternetLink || isModelRef){
-            return match
-        }
-		
-        const absolutePath=path.join(path.dirname(modelDirectory), relativePath).replace(/\\/g, '/');
-        return `${refGroup}"file://${absolutePath}"`
-    });
-}
+		if (isAbsolutePath || isInternetLink || isModelRef) {
+			return match;
+		}
+
+		const absolutePath = path.join(path.dirname(modelDirectory), relativePath).replace(/\\/g, '/');
+		return `${refGroup}"file://${absolutePath}"`;
+	});
+};
 
 const addCommentsSigns = (string, format) => {
 	const commentsStart = /hackoladeCommentStart\d+/i;
@@ -172,39 +175,46 @@ const addCommentsSigns = (string, format) => {
 	const innerCommentStart = /hackoladeInnerCommentStart/i;
 	const innerCommentEnd = /hackoladeInnerCommentEnd/i;
 	const innerCommentStartYamlArrayItem = /- hackoladeInnerCommentStart/i;
-	
-	const { result } = string.split('\n').reduce(({ isCommented, result }, line, index, array) => {
-		if (commentsStart.test(line) || innerCommentStart.test(line)) {
-			if (innerCommentStartYamlArrayItem.test(line)) {
-				const lineBeginsAt = array[index + 1].search(/\S/);
-				array[index + 1] = array[index + 1].slice(0, lineBeginsAt) + '- ' + array[index + 1].slice(lineBeginsAt);
-			}
-			return { isCommented: true, result: result };
-		}
-		if (commentsEnd.test(line)) {
-			return { isCommented: false, result };
-		}
-		if (innerCommentEnd.test(line)) {
-			if (format === 'json') {
-				array[index + 1] = '# ' + array[index + 1];
-			}
-			return { isCommented: false, result };
-		}
 
-		const isNextLineInnerCommentStart = index + 1 < array.length && innerCommentStart.test(array[index + 1]);
-		if ((isCommented || isNextLineInnerCommentStart) && !innerCommentStartYamlArrayItem.test(array[index + 1])) {
-			result = result + '# ' + line + '\n';
-		} else {
-			result = result + line + '\n';
-		}
+	const { result } = string.split('\n').reduce(
+		({ isCommented, result }, line, index, array) => {
+			if (commentsStart.test(line) || innerCommentStart.test(line)) {
+				if (innerCommentStartYamlArrayItem.test(line)) {
+					const lineBeginsAt = array[index + 1].search(/\S/);
+					array[index + 1] =
+						array[index + 1].slice(0, lineBeginsAt) + '- ' + array[index + 1].slice(lineBeginsAt);
+				}
+				return { isCommented: true, result: result };
+			}
+			if (commentsEnd.test(line)) {
+				return { isCommented: false, result };
+			}
+			if (innerCommentEnd.test(line)) {
+				if (format === 'json') {
+					array[index + 1] = '# ' + array[index + 1];
+				}
+				return { isCommented: false, result };
+			}
 
-		return { isCommented, result };
-	}, { isCommented: false, result: '' });
+			const isNextLineInnerCommentStart = index + 1 < array.length && innerCommentStart.test(array[index + 1]);
+			if (
+				(isCommented || isNextLineInnerCommentStart) &&
+				!innerCommentStartYamlArrayItem.test(array[index + 1])
+			) {
+				result = result + '# ' + line + '\n';
+			} else {
+				result = result + line + '\n';
+			}
+
+			return { isCommented, result };
+		},
+		{ isCommented: false, result: '' },
+	);
 
 	return result;
-}
+};
 
-const removeCommentLines = (scriptString) => {
+const removeCommentLines = scriptString => {
 	const isCommentedLine = /^\s*#\s+/i;
 
 	return scriptString
@@ -212,19 +222,26 @@ const removeCommentLines = (scriptString) => {
 		.filter(line => !isCommentedLine.test(line))
 		.join('\n')
 		.replace(/(.*?),\s*(\}|])/g, '$1$2');
-}
+};
 
 const buildAWSCLIScript = (modelMetadata, openAPISchema, targetScriptOptions = {}) => {
-	const registryStatement = getRegistryCreateCLIStatement({ modelMetadata, isUpdateScript: targetScriptOptions.isUpdateScript });
-	const schemaStatement = getSchemaCreateCLIStatement({ openAPISchema, modelMetadata, isUpdateScript: targetScriptOptions.isUpdateScript });
+	const registryStatement = getRegistryCreateCLIStatement({
+		modelMetadata,
+		isUpdateScript: targetScriptOptions.isUpdateScript,
+	});
+	const schemaStatement = getSchemaCreateCLIStatement({
+		openAPISchema,
+		modelMetadata,
+		isUpdateScript: targetScriptOptions.isUpdateScript,
+	});
 	return [registryStatement, schemaStatement].join('\n\n');
-}
+};
 
-const getSchemasInstance = (connectionInfo) => {
+const getSchemasInstance = connectionInfo => {
 	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
 	aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken });
-	return new aws.Schemas({apiVersion: '2019-12-02'});
-}
+	return new aws.Schemas({ apiVersion: '2019-12-02' });
+};
 
 const handleRefInContainers = (containers, externalDefinitions, resolveApiExternalRefs) => {
 	return containers.map(container => {
@@ -232,27 +249,29 @@ const handleRefInContainers = (containers, externalDefinitions, resolveApiExtern
 			const updatedSchemas = Object.keys(container.jsonSchema).reduce((schemas, id) => {
 				const json = container.jsonSchema[id];
 				try {
-					const updatedSchema = mapJsonSchema(JSON.parse(json), handleRef(externalDefinitions, resolveApiExternalRefs));
+					const updatedSchema = mapJsonSchema(
+						JSON.parse(json),
+						handleRef(externalDefinitions, resolveApiExternalRefs),
+					);
 
 					return {
 						...schemas,
-						[id]: JSON.stringify(updatedSchema)
+						[id]: JSON.stringify(updatedSchema),
 					};
 				} catch (err) {
-					return { ...schemas, [id]: json }
+					return { ...schemas, [id]: json };
 				}
 			}, {});
 
 			return {
 				...container,
-				jsonSchema: updatedSchemas
+				jsonSchema: updatedSchemas,
 			};
 		} catch (err) {
 			return container;
 		}
 	});
 };
-
 
 const handleRef = (externalDefinitions, resolveApiExternalRefs) => field => {
 	if (!field.$ref) {
@@ -263,5 +282,5 @@ const handleRef = (externalDefinitions, resolveApiExternalRefs) => field => {
 		return ref;
 	}
 
-	return { ...field, ...ref }; 
+	return { ...field, ...ref };
 };

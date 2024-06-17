@@ -1,4 +1,3 @@
-
 const mapJsonSchema = require('../../reverse_engineering/helpers/adaptJsonSchema/mapJsonSchema');
 
 const COMPONENTS_SCHEMAS_OBJECT_INDEX = 2;
@@ -52,7 +51,7 @@ const fixJsonSchemaPath = (pathToFile, relativePath) => {
 		return `${pathToFile}#/${relativePath}`;
 	}
 
-	return `${pathToFile}#/${namePath.slice(1).join('/')}`; 
+	return `${pathToFile}#/${namePath.slice(1).join('/')}`;
 };
 
 const findExternalDefinition = (externalDefinitions, pathToFile, relativePath) => {
@@ -60,10 +59,7 @@ const findExternalDefinition = (externalDefinitions, pathToFile, relativePath) =
 
 	const definitionName = Object.keys(externalDefinitions).find(name => {
 		const definition = externalDefinitions[name];
-		return (
-			definition.fieldRelativePath === '#/' + relativePath && 
-			definition.link === pathToFile
-		);
+		return definition.fieldRelativePath === '#/' + relativePath && definition.link === pathToFile;
 	});
 
 	return externalDefinitions[definitionName];
@@ -81,30 +77,30 @@ const updateOpenApiPath = (pathToFile, relativePath) => {
 
 	const schemaIndex = path.indexOf('schema');
 	const hasSchema = schemaIndex !== -1;
-	const isComponents = (path[1] === 'definitions');
+	const isComponents = path[1] === 'definitions';
 	const schemaPath = !hasSchema ? [] : path.slice(schemaIndex);
 	const pathWithoutProperties = (hasSchema ? path.slice(0, schemaIndex) : path).filter(item => item !== 'properties');
-	const bucketWithRequest = isComponents ? ['components'] : pathWithoutProperties.slice(0,2);
+	const bucketWithRequest = isComponents ? ['components'] : pathWithoutProperties.slice(0, 2);
 	const parentElementName = isComponents ? 'components' : 'paths';
 	const isResponse = pathWithoutProperties[RESPONSE_OBJECT_INDEX] === 'response';
-	const isRequestBody = pathWithoutProperties[REQUEST_BODY_OBJECT_INDEX] === 'requestBody'
+	const isRequestBody = pathWithoutProperties[REQUEST_BODY_OBJECT_INDEX] === 'requestBody';
 
 	if (!isResponse) {
 		if (!isRequestBody) {
 			if (isComponents) {
-				return `${pathToFile}#/${parentElementName}/${[ ...pathWithoutProperties.slice(2), ...schemaPath].join('/')}`;
+				return `${pathToFile}#/${parentElementName}/${[...pathWithoutProperties.slice(2), ...schemaPath].join('/')}`;
 			}
 
-			return `${pathToFile}#/${parentElementName}/${[ ...pathWithoutProperties , ...schemaPath].join('/')}`;
+			return `${pathToFile}#/${parentElementName}/${[...pathWithoutProperties, ...schemaPath].join('/')}`;
 		}
 
-		return `${pathToFile}#/${parentElementName}/${[ ...bucketWithRequest, 'requestBody', 'content', ...pathWithoutProperties.slice(3), ...schemaPath].join('/')}`;
+		return `${pathToFile}#/${parentElementName}/${[...bucketWithRequest, 'requestBody', 'content', ...pathWithoutProperties.slice(3), ...schemaPath].join('/')}`;
 	}
 
 	const response = pathWithoutProperties[RESPONSE_NAME_INDEX];
-	const pathToItem = pathWithoutProperties.slice(PATH_START_INDEX)
+	const pathToItem = pathWithoutProperties.slice(PATH_START_INDEX);
 
-	const pathWithResponses = [ ...bucketWithRequest, 'responses', response, ...pathToItem, ...schemaPath ];
+	const pathWithResponses = [...bucketWithRequest, 'responses', response, ...pathToItem, ...schemaPath];
 
 	return `${pathToFile}#/paths/${pathWithResponses.join('/')}`;
 };

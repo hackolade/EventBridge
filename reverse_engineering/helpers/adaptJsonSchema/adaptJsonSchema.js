@@ -1,31 +1,31 @@
 const mapJsonSchema = require('./mapJsonSchema');
 const commonHelper = require('../commonHelper');
 
-const convertToString = (jsonSchema) => {
+const convertToString = jsonSchema => {
 	return Object.assign({}, jsonSchema, {
 		type: 'string',
-		nullable: true
+		nullable: true,
 	});
 };
 
 const convertMultipleTypeToType = jsonSchema => {
 	const type = jsonSchema.type.find(item => item !== 'null');
-	
+
 	if (!type) {
 		return convertToString(jsonSchema);
 	} else if (!jsonSchema.type.includes('null')) {
 		return {
 			...jsonSchema,
-			type
-		}
-	} 
+			type,
+		};
+	}
 
 	return {
 		...jsonSchema,
 		type,
-		nullable: true
-	}
-}
+		nullable: true,
+	};
+};
 
 const adaptSchema = jsonSchema => {
 	return mapJsonSchema(jsonSchema, jsonSchemaItem => {
