@@ -3,27 +3,27 @@ const { CLI, CREATE_REGISTRY, CREATE_SCHEMA, UPDATE_REGISTRY, UPDATE_SCHEMA } = 
 function getRegistryCreateCLIStatement({ modelMetadata, isUpdateScript }) {
 	const data = {
 		Description: modelMetadata.EBSRregistryDescription,
-    	RegistryName: modelMetadata.ESBRregistry,
-		...(!isUpdateScript && {Tags: mapTags(modelMetadata.EBSRRegistryTags)})
+		RegistryName: modelMetadata.ESBRregistry,
+		...(!isUpdateScript && { Tags: mapTags(modelMetadata.EBSRRegistryTags) }),
 	};
 	const createRegistryStatement = `${CLI} ${
-    	isUpdateScript ? UPDATE_REGISTRY : CREATE_REGISTRY
-  	} '${JSON.stringify(data, null, 2)}'`;
+		isUpdateScript ? UPDATE_REGISTRY : CREATE_REGISTRY
+	} '${JSON.stringify(data, null, 2)}'`;
 	return createRegistryStatement;
 }
 
 function getSchemaCreateCLIStatement({ openAPISchema, modelMetadata, isUpdateScript }) {
 	const data = {
-		Content: JSON.stringify(openAPISchema).replace(/},"/g,'}, "'),
+		Content: JSON.stringify(openAPISchema).replace(/},"/g, '}, "'),
 		Description: modelMetadata.EBSRschemaDescription,
-    	RegistryName: modelMetadata.ESBRregistry,
-    	SchemaName: modelMetadata.modelName,
-    	...(!isUpdateScript && {Tags: mapTags(modelMetadata.EBSRSchemaTags)}),
-    	Type: modelMetadata.EBSRschemaType
+		RegistryName: modelMetadata.ESBRregistry,
+		SchemaName: modelMetadata.modelName,
+		...(!isUpdateScript && { Tags: mapTags(modelMetadata.EBSRSchemaTags) }),
+		Type: modelMetadata.EBSRschemaType,
 	};
 	const createSchemaStatement = `${CLI} ${
-    	isUpdateScript ? UPDATE_SCHEMA : CREATE_SCHEMA
-  	} '${JSON.stringify(data, null, 2)}'`;
+		isUpdateScript ? UPDATE_SCHEMA : CREATE_SCHEMA
+	} '${JSON.stringify(data, null, 2)}'`;
 	return createSchemaStatement;
 }
 
@@ -37,5 +37,5 @@ function mapTags(tags) {
 
 module.exports = {
 	getRegistryCreateCLIStatement,
-	getSchemaCreateCLIStatement
-}
+	getSchemaCreateCLIStatement,
+};

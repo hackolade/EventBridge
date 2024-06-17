@@ -239,7 +239,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -270,14 +270,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Format",
 				"propertyKeyword": "format",
 				"propertyType": "select",
-				"options": [
-					"",
-					"byte",
-					"binary",
-					"date",
-					"date-time",
-					"password"
-				]
+				"options": ["", "byte", "binary", "date", "date-time", "password"]
 			},
 			{
 				"propertyName": "Title",
@@ -465,7 +458,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -514,7 +507,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -543,7 +536,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -574,10 +567,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Format",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"float",
-					"double"
-				]
+				"options": ["float", "double"]
 			},
 			{
 				"propertyName": "Title",
@@ -769,7 +759,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -818,7 +808,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -847,7 +837,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -878,10 +868,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Format",
 				"propertyKeyword": "mode",
 				"propertyType": "select",
-				"options": [
-					"int32",
-					"int64"
-				]
+				"options": ["int32", "int64"]
 			},
 			{
 				"propertyName": "Title",
@@ -1073,7 +1060,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1122,7 +1109,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1151,7 +1138,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -1307,7 +1294,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -1326,19 +1313,23 @@ making sure that you maintain a proper JSON format.
 				"fieldName": "Name",
 				"fieldKeyword": "name",
 				"fieldType": "coupled",
-				"disabledOnCondition": [{
-					"key": "subtype",
-					"value": "anyParameter"
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "subtype",
+						"value": "anyParameter"
+					}
+				]
 			},
 			{
 				"fieldName": "Technical name",
 				"fieldKeyword": "code",
 				"fieldType": "coupled",
-				"disabledOnCondition": [{
-					"key": "subtype",
-					"value": "anyParameter"
-				}]
+				"disabledOnCondition": [
+					{
+						"key": "subtype",
+						"value": "anyParameter"
+					}
+				]
 			},
 			"schemaId",
 			{
@@ -1444,7 +1435,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1497,7 +1488,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1522,12 +1513,7 @@ making sure that you maintain a proper JSON format.
 					"key": "subtype",
 					"value": "schema"
 				},
-				"options": [
-					"csv",
-					"ssv",
-					"tsv",
-					"pipes"
-				],
+				"options": ["csv", "ssv", "tsv", "pipes"],
 				"enableForReference": true
 			},
 			{
@@ -1552,7 +1538,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -1576,38 +1562,49 @@ making sure that you maintain a proper JSON format.
 				"fieldName": "Name",
 				"fieldKeyword": "name",
 				"fieldType": "coupled",
-				"disabledOnCondition": [{
-					"level": "parent",
-					"key": "childType",
-					"value": "response"
-				},{
-					"key": "subtype",
-					"value": "media"
-				},{
-					"key": "subtype",
-					"value": "example"
-				},{
-					"key": "subtype",
-					"value": "encoding"
-				}]
-			},{
+				"disabledOnCondition": [
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "response"
+					},
+					{
+						"key": "subtype",
+						"value": "media"
+					},
+					{
+						"key": "subtype",
+						"value": "example"
+					},
+					{
+						"key": "subtype",
+						"value": "encoding"
+					}
+				]
+			},
+			{
 				"fieldName": "Technical name",
 				"fieldKeyword": "code",
 				"fieldType": "coupled",
-				"disabledOnCondition": [{
-					"level": "parent",
-					"key": "childType",
-					"value": "response"
-				},{
-					"key": "subtype",
-					"value": "media"
-				},{
-					"key": "subtype",
-					"value": "example"
-				},{
-					"key": "subtype",
-					"value": "encoding"
-				}]
+				"disabledOnCondition": [
+					{
+						"level": "parent",
+						"key": "childType",
+						"value": "response"
+					},
+					{
+						"key": "subtype",
+						"value": "media"
+					},
+					{
+						"key": "subtype",
+						"value": "example"
+					},
+					{
+						"key": "subtype",
+						"value": "encoding"
+					}
+				]
 			},
 			"sampleName",
 			"schemaId",
@@ -1646,7 +1643,7 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox",
-				"dependency":  {
+				"dependency": {
 					"key": "subtype",
 					"value": "schema"
 				},
@@ -1658,10 +1655,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "additionalPropControl",
 				"propertyName": "AdditionalProp Control",
 				"propertyType": "select",
-				"options": [
-					"Boolean",
-					"Object"
-				]
+				"options": ["Boolean", "Object"]
 			},
 			{
 				"propertyKeyword": "additionalProperties",
@@ -1676,12 +1670,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "additionalPropertiesObjectType",
 				"propertyName": "AdditionalProp Type",
 				"propertyType": "select",
-				"options" : [
-					"string",
-					"integer",
-					"boolean",
-					"null"
-				],
+				"options": ["string", "integer", "boolean", "null"],
 				"dependency": {
 					"key": "additionalPropControl",
 					"value": "Object"
@@ -1691,10 +1680,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "additionalPropertiesIntegerFormat",
 				"propertyName": "AdditionalProp Format",
 				"propertyType": "select",
-				"options" : [
-					"int32",
-					"int64"
-				],
+				"options": ["int32", "int64"],
 				"dependency": {
 					"type": "and",
 					"values": [
@@ -1791,7 +1777,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1813,7 +1799,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "externalDocs",
 				"shouldValidate": true,
 				"propertyTooltip": "",
-				"dependency":  {
+				"dependency": {
 					"key": "subtype",
 					"value": "schema"
 				},
@@ -1844,7 +1830,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -1867,7 +1853,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -1907,7 +1893,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -1971,7 +1957,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2044,7 +2030,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2184,7 +2170,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2251,7 +2237,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2304,7 +2290,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2340,14 +2326,13 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox"
-			},{
+			},
+			{
 				"propertyName": "Style",
 				"propertyKeyword": "style",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"form"
-				],
+				"options": ["form"],
 				"enableForReference": true
 			},
 			{
@@ -2382,7 +2367,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2407,12 +2392,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyTooltip": "The type of the security scheme.",
 				"propertyType": "select",
-				"options": [
-					"apiKey",
-					"http",
-					"oauth2",
-					"openIdConnect"
-				]
+				"options": ["apiKey", "http", "oauth2", "openIdConnect"]
 			},
 			{
 				"propertyName": "apiKey name",
@@ -2432,11 +2412,7 @@ making sure that you maintain a proper JSON format.
 				"shouldValidate": true,
 				"propertyTooltip": "The location of the API key.",
 				"propertyType": "select",
-				"options": [
-					"query",
-					"header",
-					"cookie"
-				],
+				"options": ["query", "header", "cookie"],
 				"dependency": {
 					"key": "schemeType",
 					"value": "apiKey"
@@ -2463,7 +2439,8 @@ making sure that you maintain a proper JSON format.
 						{
 							"key": "schemeType",
 							"value": "http"
-						},{
+						},
+						{
 							"key": "scheme",
 							"value": "bearer"
 						}
@@ -2537,7 +2514,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -2608,7 +2585,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -2679,7 +2656,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -2758,7 +2735,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -2785,7 +2762,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -2799,7 +2776,6 @@ making sure that you maintain a proper JSON format.
 						]
 					}
 				]
-				
 			},
 			{
 				"propertyName": "openIdConnectUrl",
@@ -2825,7 +2801,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2844,11 +2820,13 @@ making sure that you maintain a proper JSON format.
 				"fieldName": "Name",
 				"fieldKeyword": "name",
 				"fieldType": "coupled"
-			},{
+			},
+			{
 				"fieldName": "Technical name",
 				"fieldKeyword": "code",
 				"fieldType": "coupled"
-			},{
+			},
+			{
 				"fieldName": "Callback expression",
 				"fieldKeyword": "callbackExpression",
 				"propertyTooltip": "Runtime expression",
@@ -2858,9 +2836,10 @@ making sure that you maintain a proper JSON format.
 				"validation": {
 					"minLength": 1
 				}
-			},{
+			},
+			{
 				"fieldName": "Resource",
-				"fieldTooltip":"A Path Item Object used to define a callback request and expected responses.",
+				"fieldTooltip": "A Path Item Object used to define a callback request and expected responses.",
 				"fieldKeyword": "bucketId",
 				"fieldType": "selecthashed",
 				"template": "containers"
@@ -2886,7 +2865,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -2995,7 +2974,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -3022,7 +3001,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -3049,7 +3028,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -3121,17 +3100,13 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox"
-			},{
+			},
+			{
 				"propertyName": "Style",
 				"propertyKeyword": "style",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"matrix",
-					"label",
-					"simple"
-				],
+				"options": ["", "matrix", "label", "simple"],
 				"enableForReference": true
 			},
 			{
@@ -3164,7 +3139,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -3178,7 +3153,7 @@ making sure that you maintain a proper JSON format.
 				]
 			}
 		],
-		"parameter (query)":[
+		"parameter (query)": [
 			{
 				"fieldName": "Parameter name",
 				"fieldKeyword": "parameterName",
@@ -3203,18 +3178,13 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox"
-			},{
+			},
+			{
 				"propertyName": "Style",
 				"propertyKeyword": "style",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"form",
-					"spaceDelimited",
-					"pipeDelimited",
-					"deepObject"
-				],
+				"options": ["", "form", "spaceDelimited", "pipeDelimited", "deepObject"],
 				"enableForReference": true
 			},
 			{
@@ -3247,7 +3217,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -3286,15 +3256,13 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox"
-			},{
+			},
+			{
 				"propertyName": "Style",
 				"propertyKeyword": "style",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"simple"
-				],
+				"options": ["", "simple"],
 				"enableForReference": true
 			},
 			{
@@ -3327,7 +3295,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -3366,15 +3334,13 @@ making sure that you maintain a proper JSON format.
 				"propertyName": "Allow empty value",
 				"propertyKeyword": "allowEmptyValue",
 				"propertyType": "checkbox"
-			},{
+			},
+			{
 				"propertyName": "Style",
 				"propertyKeyword": "style",
 				"propertyTooltip": "Select from list of options",
 				"propertyType": "select",
-				"options": [
-					"",
-					"form"
-				],
+				"options": ["", "form"],
 				"enableForReference": true
 			},
 			{
@@ -3407,7 +3373,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -3421,17 +3387,14 @@ making sure that you maintain a proper JSON format.
 				]
 			}
 		],
-		"choice": [{
-			"fieldName": "choice",
-			"fieldKeyword": "choice",
-			"fieldType": "select",
-			"options": [
-				"allOf",
-				"anyOf",
-				"oneOf",
-				"not"
-			]
-		}],
+		"choice": [
+			{
+				"fieldName": "choice",
+				"fieldKeyword": "choice",
+				"fieldType": "select",
+				"options": ["allOf", "anyOf", "oneOf", "not"]
+			}
+		],
 		"definitions": []
 	}
 }
