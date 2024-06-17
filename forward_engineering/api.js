@@ -1,4 +1,4 @@
-const aws = require('../reverse_engineering/node_modules/aws-sdk');
+const aws = require('aws-sdk');
 const validationHelper = require('./helpers/validationHelper');
 const getInfo = require('./helpers/infoHelper');
 const { getPaths } = require('./helpers/pathHelper');
