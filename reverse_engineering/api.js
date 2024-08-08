@@ -32,7 +32,7 @@ module.exports = {
 		cb(schemasInstance);
 	},
 
-	disconnect: function (connectionInfo, cb) {
+	disconnect: function (connectionInfo, logger, cb, app) {
 		cb();
 	},
 
