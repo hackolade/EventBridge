@@ -145,9 +145,7 @@ making sure that you maintain a proper JSON format.
 				"propertyKeyword": "dbVendor",
 				"propertyTooltip": "DB vendor",
 				"propertyType": "select",
-				"options": [
-					"EventBridge"
-				],
+				"options": ["EventBridge"],
 				"disabledOption": true
 			},
 			{
@@ -295,7 +293,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -341,7 +339,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -373,7 +371,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",
@@ -461,7 +459,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -475,7 +473,8 @@ making sure that you maintain a proper JSON format.
 								]
 							}
 						]
-					},{
+					},
+					{
 						"propertyName": "extensions",
 						"propertyType": "group",
 						"propertyKeyword": "scopesExtensions",
@@ -487,7 +486,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -575,7 +574,7 @@ making sure that you maintain a proper JSON format.
 										"propertyKeyword": "extensionPattern",
 										"shouldValidate": true,
 										"propertyType": "text",
-										"regex":"^x-"
+										"regex": "^x-"
 									},
 									{
 										"propertyName": "value",
@@ -602,7 +601,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -651,7 +650,7 @@ making sure that you maintain a proper JSON format.
 								"propertyKeyword": "extensionPattern",
 								"shouldValidate": true,
 								"propertyType": "text",
-								"regex":"^x-"
+								"regex": "^x-"
 							},
 							{
 								"propertyName": "value",
@@ -678,7 +677,7 @@ making sure that you maintain a proper JSON format.
 						"propertyKeyword": "extensionPattern",
 						"shouldValidate": true,
 						"propertyType": "text",
-						"regex":"^x-"
+						"regex": "^x-"
 					},
 					{
 						"propertyName": "value",

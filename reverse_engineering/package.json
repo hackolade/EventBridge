@@ -1,17 +1,6 @@
 {
-  "name": "EventBridge",
-  "version": "1.0.0",
-  "description": "",
-  "author": "Hackolade",
-  "dependencies": {
-    "aws-sdk": "^2.708.0",
-    "comment-json": "^4.1.0",
-    "js-yaml": "^3.13.0",
-    "lodash.isplainobject": "^4.0.6",
-    "lodash.partial": "^4.2.1",
-    "node-uuid": "^1.4.7"
-  },
-  "type": "multi",
-  "installed": true,
-  "helpUrl": "https://hackolade.com/help/ConnecttoEventBridgeSchemaRegist.html"
+    "name": "EventBridge",
+    "type": "multi",
+    "installed": true,
+    "helpUrl": "https://hackolade.com/help/ConnecttoEventBridgeSchemaRegist.html"
 }
