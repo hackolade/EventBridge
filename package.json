@@ -1,6 +1,6 @@
 {
     "name": "EventBridge",
-    "version": "0.2.2",
+    "version": "0.2.3",
     "author": "hackolade",
     "engines": {
         "hackolade": "4.3.15",
