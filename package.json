@@ -90,7 +90,8 @@
     "disabled": false,
     "dependencies": {
         "@apidevtools/swagger-parser": "10.0.3",
-        "aws-sdk": "2.1642.0",
+        "@aws-sdk/client-schemas": "3.686.0",
+        "@hackolade/fetch": "1.1.0",
         "comment-json": "4.1.0",
         "js-yaml": "4.1.0",
         "lodash.get": "4.4.2",

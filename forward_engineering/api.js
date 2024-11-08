@@ -1,4 +1,13 @@
-const aws = require('aws-sdk');
+const path = require('path');
+const {
+	SchemasClient,
+	ListRegistriesCommand,
+	UpdateRegistryCommand,
+	DescribeRegistryCommand,
+	CreateRegistryCommand,
+	UpdateSchemaCommand,
+	CreateSchemaCommand,
+} = require('@aws-sdk/client-schemas');
 const validationHelper = require('./helpers/validationHelper');
 const getInfo = require('./helpers/infoHelper');
 const { getPaths } = require('./helpers/pathHelper');
@@ -7,10 +16,10 @@ const commonHelper = require('./helpers/commonHelper');
 const { getServers } = require('./helpers/serversHelper');
 const getExtensions = require('./helpers/extensionsHelper');
 const { getRegistryCreateCLIStatement, getSchemaCreateCLIStatement } = require('./helpers/awsCLIHelpers/awsCLIHelper');
-const { getApiStatements, getItemUpdateParamiters } = require('./helpers/awsCLIHelpers/applyToInstanceHelper');
+const { getApiStatements, getItemUpdateParameters } = require('./helpers/awsCLIHelpers/applyToInstanceHelper');
 const handleReferencePath = require('./helpers/handleReferencePath');
 const mapJsonSchema = require('../reverse_engineering/helpers/adaptJsonSchema/mapJsonSchema');
-const path = require('path');
+const { SCHEMAS_CLIENT_API_VERSION, NOT_FOUND_RESPONSE_CODE } = require('../shared/constants');
 
 module.exports = {
 	generateModelScript(data, logger, cb) {
@@ -57,7 +66,7 @@ module.exports = {
 			};
 			const extensions = getExtensions(data.modelData[0].scopesExtensions);
 
-			const resultSchema = Object.assign({}, openApiSchema, extensions);
+			const resultSchema = { ...openApiSchema, ...extensions };
 			let schema = addCommentsSigns(JSON.stringify(resultSchema, null, 2), 'json');
 			schema = removeCommentLines(schema);
 
@@ -90,15 +99,11 @@ module.exports = {
 		}
 	},
 
-	async applyToInstance(data, logger, callback, app) {
-		const NOT_FOUND_RESPONSE_CODE = 'NotFoundException';
-		const BAD_REQUEST_RESPONSE_CODE = 'BadRequestException';
-		const NOTHING_TO_UPDATE_RESPONSE_MESSAGE = 'Invalid request. Please provide at least one field to update.';
+	async applyToInstance(data, logger, callback) {
 		if (!data.script) {
 			return callback({ message: 'Empty script' });
 		}
 
-		logger.clear();
 		logger.log('info', data, data.hiddenKeys);
 
 		try {
@@ -108,13 +113,15 @@ module.exports = {
 			if (registry) {
 				try {
 					if (registry.Description) {
-						await schemasInstance.updateRegistry(getItemUpdateParamiters(registry)).promise();
+						await schemasInstance.send(new UpdateRegistryCommand(getItemUpdateParameters(registry)));
 					} else {
-						await schemasInstance.describeRegistry({ RegistryName: registry.RegistryName }).promise();
+						await schemasInstance.send(
+							new DescribeRegistryCommand({ RegistryName: registry.RegistryName }),
+						);
 					}
 				} catch (err) {
 					if (err.code === NOT_FOUND_RESPONSE_CODE) {
-						await schemasInstance.createRegistry(registry).promise();
+						await schemasInstance.send(new CreateRegistryCommand(registry));
 					} else {
 						return callback(err);
 					}
@@ -122,10 +129,10 @@ module.exports = {
 			}
 			if (schema) {
 				try {
-					await schemasInstance.updateSchema(getItemUpdateParamiters(schema)).promise();
+					await schemasInstance.send(new UpdateSchemaCommand(getItemUpdateParameters(schema)));
 				} catch (err) {
 					if (err.code === NOT_FOUND_RESPONSE_CODE) {
-						await schemasInstance.createSchema(schema).promise();
+						await schemasInstance.send(new CreateSchemaCommand(schema));
 					} else {
 						return callback(err);
 					}
@@ -141,7 +148,7 @@ module.exports = {
 		logger.log('info', connectionInfo, 'Test connection', connectionInfo.hiddenKeys);
 		const schemasInstance = getSchemasInstance(connectionInfo);
 		try {
-			await schemasInstance.listRegistries().promise();
+			await schemasInstance.send(new ListRegistriesCommand());
 			callback();
 		} catch (err) {
 			logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Connection failed');
@@ -221,7 +228,7 @@ const removeCommentLines = scriptString => {
 		.split('\n')
 		.filter(line => !isCommentedLine.test(line))
 		.join('\n')
-		.replace(/(.*?),\s*(\}|])/g, '$1$2');
+		.replace(/(.*?),\s*([}\]])/g, '$1$2');
 };
 
 const buildAWSCLIScript = (modelMetadata, openAPISchema, targetScriptOptions = {}) => {
@@ -239,8 +246,15 @@ const buildAWSCLIScript = (modelMetadata, openAPISchema, targetScriptOptions = {
 
 const getSchemasInstance = connectionInfo => {
 	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
-	aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken });
-	return new aws.Schemas({ apiVersion: '2019-12-02' });
+	return new SchemasClient({
+		credentials: {
+			accessKeyId,
+			secretAccessKey,
+			sessionToken,
+		},
+		region,
+		apiVersion: SCHEMAS_CLIENT_API_VERSION,
+	});
 };
 
 const handleRefInContainers = (containers, externalDefinitions, resolveApiExternalRefs) => {

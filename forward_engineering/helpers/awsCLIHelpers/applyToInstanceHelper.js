@@ -9,11 +9,9 @@ const getApiStatements = script => {
 	return cliStatements.reduce((acc, statement) => {
 		const oneLineStatement = statement.replace(/\n/g, '');
 		if (registryRegexp.test(oneLineStatement)) {
-			const parsedInput = getStatementInput(registryRegexp, oneLineStatement);
-			acc.registry = parsedInput;
+			acc.registry = getStatementInput(registryRegexp, oneLineStatement);
 		} else if (schemaRegexp.test(oneLineStatement)) {
-			const parsedInput = getStatementInput(schemaRegexp, oneLineStatement);
-			acc.schema = parsedInput;
+			acc.schema = getStatementInput(schemaRegexp, oneLineStatement);
 		}
 		return acc;
 	}, {});
@@ -24,12 +22,12 @@ const getStatementInput = (regExp, statement) => {
 	return JSON.parse(jsonInput);
 };
 
-const getItemUpdateParamiters = data => {
+const getItemUpdateParameters = data => {
 	const { Tags, ...parameters } = data;
 	return parameters;
 };
 
 module.exports = {
 	getApiStatements,
-	getItemUpdateParamiters,
+	getItemUpdateParameters,
 };
