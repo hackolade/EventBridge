@@ -8,6 +8,7 @@ const {
 	UpdateSchemaCommand,
 	CreateSchemaCommand,
 } = require('@aws-sdk/client-schemas');
+const { hckFetchAwsSdkHttpHandler } = require('@hackolade/fetch');
 const validationHelper = require('./helpers/validationHelper');
 const getInfo = require('./helpers/infoHelper');
 const { getPaths } = require('./helpers/pathHelper');
@@ -246,7 +247,7 @@ const buildAWSCLIScript = (modelMetadata, openAPISchema, targetScriptOptions = {
 };
 
 const getSchemasInstance = connectionInfo => {
-	const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
+	const { accessKeyId, secretAccessKey, region, sessionToken, queryRequestTimeout } = connectionInfo;
 	return new SchemasClient({
 		credentials: {
 			accessKeyId,
@@ -255,6 +256,7 @@ const getSchemasInstance = connectionInfo => {
 		},
 		region,
 		apiVersion: SCHEMAS_CLIENT_API_VERSION,
+		requestHandler: hckFetchAwsSdkHttpHandler({ requestTimeout: queryRequestTimeout }),
 	});
 };
 
