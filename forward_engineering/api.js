@@ -104,6 +104,7 @@ module.exports = {
 			return callback({ message: 'Empty script' });
 		}
 
+		logger.clear();
 		logger.log('info', data, data.hiddenKeys);
 
 		try {
