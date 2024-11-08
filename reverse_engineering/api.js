@@ -1,20 +1,29 @@
 'use strict';
 
-const aws = require('aws-sdk');
+const {
+	SchemasClient,
+	ListRegistriesCommand,
+	ListSchemasCommand,
+	DescribeRegistryCommand,
+	DescribeSchemaCommand,
+	ListSchemaVersionsCommand,
+} = require('@aws-sdk/client-schemas');
 const fs = require('fs');
 const https = require('https');
+const { hckFetchAwsSdkHttpHandler } = require('@hackolade/fetch');
 const commonHelper = require('./helpers/commonHelper');
 const dataHelper = require('./helpers/dataHelper');
 const errorHelper = require('./helpers/errorHelper');
 const { adaptJsonSchema } = require('./helpers/adaptJsonSchema/adaptJsonSchema');
 const resolveExternalDefinitionPathHelper = require('./helpers/resolveExternalDefinitionPathHelper');
 const validationHelper = require('../forward_engineering/helpers/validationHelper');
+const { SCHEMAS_CLIENT_API_VERSION } = require('../shared/constants');
 
-this.schemasInstance = null;
+let schemasInstance = null;
 
 module.exports = {
-	connect: async (connectionInfo, logger, cb, app) => {
-		const { accessKeyId, secretAccessKey, region, sessionToken } = connectionInfo;
+	connect: async (connectionInfo, logger, cb) => {
+		const { accessKeyId, secretAccessKey, region, sessionToken, queryRequestTimeout } = connectionInfo;
 		const sslOptions = await getSslOptions(connectionInfo);
 		const httpOptions = sslOptions.ssl
 			? {
@@ -27,12 +36,22 @@ module.exports = {
 					...sslOptions,
 				}
 			: {};
-		aws.config.update({ accessKeyId, secretAccessKey, region, sessionToken, ...httpOptions });
-		const schemasInstance = new aws.Schemas({ apiVersion: '2019-12-02' });
+		schemasInstance = new SchemasClient({
+			credentials: {
+				accessKeyId,
+				secretAccessKey,
+				sessionToken,
+			},
+			region,
+			apiVersion: SCHEMAS_CLIENT_API_VERSION,
+			requestHandler: hckFetchAwsSdkHttpHandler({ requestTimeout: queryRequestTimeout }),
+		});
+
 		cb(schemasInstance);
 	},
 
-	disconnect: function (connectionInfo, logger, cb, app) {
+	disconnect: function (connectionInfo, logger, cb) {
+		schemasInstance?.destroy?.();
 		cb();
 	},
 
@@ -40,7 +59,7 @@ module.exports = {
 		logInfo('Test connection', connectionInfo, logger);
 		const connectionCallback = async schemasInstance => {
 			try {
-				await schemasInstance.listRegistries().promise();
+				await schemasInstance.send(new ListRegistriesCommand());
 				cb();
 			} catch (err) {
 				logger.log('error', { message: err.message, stack: err.stack, error: err }, 'Connection failed');
@@ -53,7 +72,6 @@ module.exports = {
 
 	getDbCollectionsNames: function (connectionInfo, logger, cb, app) {
 		const connectionCallback = async schemasInstance => {
-			this.schemasInstance = schemasInstance;
 			try {
 				const registries = await listRegistries(schemasInstance);
 				const registrySchemas = registries.map(async registry => {
@@ -86,7 +104,7 @@ module.exports = {
 		this.connect(connectionInfo, logger, connectionCallback, app);
 	},
 
-	getDbCollectionsData: function (data, logger, cb, app) {
+	getDbCollectionsData: function (data, logger, cb) {
 		logger.log('info', data, 'Retrieving schema', data.hiddenKeys);
 
 		const { collectionData } = data;
@@ -94,22 +112,21 @@ module.exports = {
 		const schemas = collectionData.collections;
 		const registryName = registries[0];
 		const schemaName = schemas[registryName][0];
-		const schemaVersion =
-			collectionData.collectionVersion[registryName] &&
-			collectionData.collectionVersion[registryName][schemaName];
+		const schemaVersion = collectionData.collectionVersion[registryName]?.[schemaName];
 
 		const getSchema = async () => {
 			try {
-				const registryData = await this.schemasInstance
-					.describeRegistry({ RegistryName: registryName })
-					.promise();
-				const schemaData = await this.schemasInstance
-					.describeSchema({
+				const registryData = await schemasInstance.send(
+					new DescribeRegistryCommand({ RegistryName: registryName }),
+				);
+				const schemaData = await schemasInstance.send(
+					new DescribeSchemaCommand({
 						RegistryName: registryName,
 						SchemaName: schemaName,
 						SchemaVersion: schemaVersion,
-					})
-					.promise();
+					}),
+				);
+
 				const openAPISchema = JSON.parse(schemaData.Content);
 				const { modelData, modelContent, definitions } = convertOpenAPISchemaToHackolade(openAPISchema);
 				const eventbridgeModelLevelData = {
@@ -210,12 +227,12 @@ module.exports = {
 		const getSchemaVersions = async () => {
 			const { containerName, entityName } = data;
 			try {
-				const schemaVersionsResponse = await this.schemasInstance
-					.listSchemaVersions({
+				const schemaVersionsResponse = await schemasInstance.send(
+					new ListSchemaVersionsCommand({
 						RegistryName: containerName,
 						SchemaName: entityName,
-					})
-					.promise();
+					}),
+				);
 				const schemaVersions = schemaVersionsResponse.SchemaVersions.map(({ SchemaVersion }) => ({
 					name: SchemaVersion,
 				}));
@@ -330,8 +347,8 @@ const mapPackageData = data => {
 	return Object.entries(data.entities).reduce((acc, [containerName, containerEntities]) => {
 		const entities = containerEntities.map(entity => {
 			const { collectionName, properties, ...entityLevel } = entity;
-			const { name, bucketInfo } = data.containers.find(item => item.name === containerName);
-			const entityPackage = {
+			const { bucketInfo } = data.containers.find(item => item.name === containerName);
+			return {
 				dbName: containerName,
 				collectionName,
 				bucketInfo,
@@ -341,18 +358,19 @@ const mapPackageData = data => {
 					jsonSchema: { properties },
 				},
 			};
-			return entityPackage;
 		});
 		return acc.concat(...entities);
 	}, []);
 };
 
 const listRegistries = async schemasInstance => {
-	let { NextToken, Registries } = await schemasInstance.listRegistries().promise();
+	let { NextToken, Registries } = await schemasInstance.send(new ListRegistriesCommand());
 	const registries = [...Registries];
 	let nextToken = NextToken;
 	while (nextToken) {
-		const { NextToken, Registries } = await schemasInstance.listRegistries({ NextToken: nextToken }).promise();
+		const { NextToken, Registries } = await schemasInstance.send(
+			new ListRegistriesCommand({ NextToken: nextToken }),
+		);
 		registries.push(...Registries);
 		nextToken = NextToken;
 	}
@@ -360,13 +378,13 @@ const listRegistries = async schemasInstance => {
 };
 
 const listSchemas = async (schemasInstance, registryName) => {
-	const { NextToken, Schemas } = await schemasInstance.listSchemas({ RegistryName: registryName }).promise();
+	const { NextToken, Schemas } = await schemasInstance.send(new ListSchemasCommand({ RegistryName: registryName }));
 	const schemas = [...Schemas];
 	let nextToken = NextToken;
 	while (nextToken) {
-		const { NextToken, Schemas } = await schemasInstance
-			.listSchemas({ RegistryName: registryName, NextToken: nextToken })
-			.promise();
+		const { NextToken, Schemas } = await schemasInstance.send(
+			new ListSchemasCommand({ RegistryName: registryName, NextToken: nextToken }),
+		);
 		schemas.push(...Schemas);
 		nextToken = NextToken;
 	}
