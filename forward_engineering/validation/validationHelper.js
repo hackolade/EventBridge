@@ -20,13 +20,7 @@ const getError = errorItem => {
 	};
 };
 
-const at = message => {
-	if (message.path && message.path.length) {
-		return ' at #/' + message.path.join('/');
-	} else {
-		return '';
-	}
-};
+const at = message => (message.path?.length ? ' at #/' + message.path.join('/') : '');
 
 const indent = (message, depth = 1) => '\t'.repeat(2 * depth) + message;
 
@@ -46,7 +40,7 @@ const getInnerErrors = (inner, depth = 0) => {
 	).join('\n');
 };
 
-const uniqStrings = items => Object.keys(items.reduce((result, item) => Object.assign({}, result, { [item]: '' }), {}));
+const uniqStrings = items => [...new Set(items)];
 
 const createPathParameterError = (pathName, parameter) => {
 	return {
@@ -64,16 +58,16 @@ const getValidatorErrors = error => {
 
 	if (Array.isArray(error.details)) {
 		return error.details.map(getError);
-	} else {
-		return [
-			{
-				type: 'error',
-				label: error.name,
-				title: error.message,
-				context: '',
-			},
-		];
 	}
+
+	return [
+		{
+			type: 'error',
+			label: error.name,
+			title: error.message,
+			context: '',
+		},
+	];
 };
 
 const checkPathParameters = schema => {
@@ -84,6 +78,8 @@ const checkPathParameters = schema => {
 		const requests = schema.paths[pathName] || {};
 
 		return pathParameters.reduce((errors, parameter) => {
+			const findParameter = param => param.name === parameter && param.in === 'path';
+
 			return requestNames
 				.filter(requestName => requests[requestName])
 				.reduce((errors, requestName) => {
@@ -93,7 +89,7 @@ const checkPathParameters = schema => {
 						return errors.concat(createPathParameterError(pathName, parameter));
 					}
 
-					const param = request.parameters.find(param => param.name === parameter && param.in === 'path');
+					const param = request.parameters.find(findParameter);
 
 					if (param) {
 						return errors;
@@ -106,7 +102,7 @@ const checkPathParameters = schema => {
 };
 
 const validate = (script, options = {}) =>
-	new Promise((resolve, reject) => {
+	new Promise(resolve => {
 		SwaggerParser.validate(script, options, (err, api) => {
 			const errors = getValidatorErrors(err).concat(checkPathParameters(script));
 
@@ -123,9 +119,9 @@ const validate = (script, options = {}) =>
 						},
 					},
 				]);
-			} else {
-				resolve(errors);
 			}
+
+			resolve(errors);
 		});
 	});
 
