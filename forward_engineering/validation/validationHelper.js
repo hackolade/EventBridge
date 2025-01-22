@@ -48,6 +48,15 @@ const getInnerErrors = (inner, depth = 0) => {
 
 const uniqStrings = items => Object.keys(items.reduce((result, item) => Object.assign({}, result, { [item]: '' }), {}));
 
+const createPathParameterError = (pathName, parameter) => {
+	return {
+		type: 'error',
+		label: 'Semantic Error',
+		title: 'Semantic error at ' + `paths.${pathName}`,
+		context: `Declared path parameter "${parameter}" needs to be defined as a path parameter at either the path or operation level`,
+	};
+};
+
 const getValidatorErrors = error => {
 	if (!error) {
 		return [];
@@ -65,6 +74,35 @@ const getValidatorErrors = error => {
 			},
 		];
 	}
+};
+
+const checkPathParameters = schema => {
+	const requestNames = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', '$ref'];
+
+	return Object.keys(schema.paths).reduce((errors, pathName) => {
+		const pathParameters = getPathParameters(pathName);
+		const requests = schema.paths[pathName] || {};
+
+		return pathParameters.reduce((errors, parameter) => {
+			return requestNames
+				.filter(requestName => requests[requestName])
+				.reduce((errors, requestName) => {
+					const request = requests[requestName];
+
+					if (!Array.isArray(request.parameters)) {
+						return errors.concat(createPathParameterError(pathName, parameter));
+					}
+
+					const param = request.parameters.find(param => param.name === parameter && param.in === 'path');
+
+					if (param) {
+						return errors;
+					}
+
+					return errors.concat(createPathParameterError(pathName, parameter));
+				}, errors);
+		}, errors);
+	}, []);
 };
 
 const validate = (script, options = {}) =>
@@ -97,44 +135,6 @@ const getPathParameters = pathName => {
 	return (pathName.match(new RegExp(regExp, 'g')) || []).map(parameter => {
 		return parameter.match(regExp)[1];
 	});
-};
-
-const createPathParameterError = (pathName, parameter) => {
-	return {
-		type: 'error',
-		label: 'Semantic Error',
-		title: 'Semantic error at ' + `paths.${pathName}`,
-		context: `Declared path parameter "${parameter}" needs to be defined as a path parameter at either the path or operation level`,
-	};
-};
-
-const checkPathParameters = schema => {
-	const requestNames = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', '$ref'];
-
-	return Object.keys(schema.paths).reduce((errors, pathName) => {
-		const pathParameters = getPathParameters(pathName);
-		const requests = schema.paths[pathName] || {};
-
-		return pathParameters.reduce((errors, parameter) => {
-			return requestNames
-				.filter(requestName => requests[requestName])
-				.reduce((errors, requestName) => {
-					const request = requests[requestName];
-
-					if (!Array.isArray(request.parameters)) {
-						return errors.concat(createPathParameterError(pathName, parameter));
-					}
-
-					const param = request.parameters.find(param => param.name === parameter && param.in === 'path');
-
-					if (param) {
-						return errors;
-					}
-
-					return errors.concat(createPathParameterError(pathName, parameter));
-				}, errors);
-		}, errors);
-	}, []);
 };
 
 module.exports = {

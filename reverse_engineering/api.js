@@ -16,7 +16,7 @@ const dataHelper = require('./helpers/dataHelper');
 const errorHelper = require('./helpers/errorHelper');
 const { adaptJsonSchema } = require('./helpers/adaptJsonSchema/adaptJsonSchema');
 const resolveExternalDefinitionPathHelper = require('./helpers/resolveExternalDefinitionPathHelper');
-const validationHelper = require('../forward_engineering/helpers/validationHelper');
+const validationHelper = require('../forward_engineering/validation/validationHelper');
 const { SCHEMAS_CLIENT_API_VERSION } = require('../shared/constants');
 
 let schemasInstance = null;
