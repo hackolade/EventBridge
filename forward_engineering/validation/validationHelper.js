@@ -20,13 +20,7 @@ const getError = errorItem => {
 	};
 };
 
-const at = message => {
-	if (message.path && message.path.length) {
-		return ' at #/' + message.path.join('/');
-	} else {
-		return '';
-	}
-};
+const at = message => (message.path?.length ? ' at #/' + message.path.join('/') : '');
 
 const indent = (message, depth = 1) => '\t'.repeat(2 * depth) + message;
 
@@ -46,7 +40,16 @@ const getInnerErrors = (inner, depth = 0) => {
 	).join('\n');
 };
 
-const uniqStrings = items => Object.keys(items.reduce((result, item) => Object.assign({}, result, { [item]: '' }), {}));
+const uniqStrings = items => [...new Set(items)];
+
+const createPathParameterError = (pathName, parameter) => {
+	return {
+		type: 'error',
+		label: 'Semantic Error',
+		title: 'Semantic error at ' + `paths.${pathName}`,
+		context: `Declared path parameter "${parameter}" needs to be defined as a path parameter at either the path or operation level`,
+	};
+};
 
 const getValidatorErrors = error => {
 	if (!error) {
@@ -55,20 +58,51 @@ const getValidatorErrors = error => {
 
 	if (Array.isArray(error.details)) {
 		return error.details.map(getError);
-	} else {
-		return [
-			{
-				type: 'error',
-				label: error.name,
-				title: error.message,
-				context: '',
-			},
-		];
 	}
+
+	return [
+		{
+			type: 'error',
+			label: error.name,
+			title: error.message,
+			context: '',
+		},
+	];
+};
+
+const checkPathParameters = schema => {
+	const requestNames = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', '$ref'];
+
+	return Object.keys(schema.paths).reduce((errors, pathName) => {
+		const pathParameters = getPathParameters(pathName);
+		const requests = schema.paths[pathName] || {};
+
+		return pathParameters.reduce((errors, parameter) => {
+			const findParameter = param => param.name === parameter && param.in === 'path';
+
+			return requestNames
+				.filter(requestName => requests[requestName])
+				.reduce((errors, requestName) => {
+					const request = requests[requestName];
+
+					if (!Array.isArray(request.parameters)) {
+						return errors.concat(createPathParameterError(pathName, parameter));
+					}
+
+					const param = request.parameters.find(findParameter);
+
+					if (param) {
+						return errors;
+					}
+
+					return errors.concat(createPathParameterError(pathName, parameter));
+				}, errors);
+		}, errors);
+	}, []);
 };
 
 const validate = (script, options = {}) =>
-	new Promise((resolve, reject) => {
+	new Promise(resolve => {
 		SwaggerParser.validate(script, options, (err, api) => {
 			const errors = getValidatorErrors(err).concat(checkPathParameters(script));
 
@@ -85,9 +119,9 @@ const validate = (script, options = {}) =>
 						},
 					},
 				]);
-			} else {
-				resolve(errors);
 			}
+
+			resolve(errors);
 		});
 	});
 
@@ -97,44 +131,6 @@ const getPathParameters = pathName => {
 	return (pathName.match(new RegExp(regExp, 'g')) || []).map(parameter => {
 		return parameter.match(regExp)[1];
 	});
-};
-
-const createPathParameterError = (pathName, parameter) => {
-	return {
-		type: 'error',
-		label: 'Semantic Error',
-		title: 'Semantic error at ' + `paths.${pathName}`,
-		context: `Declared path parameter "${parameter}" needs to be defined as a path parameter at either the path or operation level`,
-	};
-};
-
-const checkPathParameters = schema => {
-	const requestNames = ['get', 'put', 'post', 'delete', 'options', 'head', 'patch', 'trace', '$ref'];
-
-	return Object.keys(schema.paths).reduce((errors, pathName) => {
-		const pathParameters = getPathParameters(pathName);
-		const requests = schema.paths[pathName] || {};
-
-		return pathParameters.reduce((errors, parameter) => {
-			return requestNames
-				.filter(requestName => requests[requestName])
-				.reduce((errors, requestName) => {
-					const request = requests[requestName];
-
-					if (!Array.isArray(request.parameters)) {
-						return errors.concat(createPathParameterError(pathName, parameter));
-					}
-
-					const param = request.parameters.find(param => param.name === parameter && param.in === 'path');
-
-					if (param) {
-						return errors;
-					}
-
-					return errors.concat(createPathParameterError(pathName, parameter));
-				}, errors);
-		}, errors);
-	}, []);
 };
 
 module.exports = {
