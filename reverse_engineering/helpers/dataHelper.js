@@ -754,7 +754,7 @@ const handleRequestData = (requestData, request, fieldOrder) => {
 	const responses = requestData.responses;
 	const entityData = getEntityData(requestData, REQUEST);
 	const parametersData = getParametersData(requestData.parameters, fieldOrder);
-	const requestBody = handleRequestBody(requestData.requestBody || {}, fieldOrder);
+	const requestBody = handleRequestBody(requestData.requestBody || {});
 	const callbacksData = handleObject(handleCallback, requestData.callbacks);
 	const requestSchema = {
 		parameters: {
