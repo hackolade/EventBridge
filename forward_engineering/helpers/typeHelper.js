@@ -1,6 +1,5 @@
 const get = require('lodash.get');
 const getExtensions = require('./extensionsHelper');
-const { prepareReferenceName } = require('../utils/utils');
 const { commentDeactivatedItemInner } = require('./commentsHelper');
 
 function getType(data, key, isParentActivated = false) {
@@ -9,7 +8,7 @@ function getType(data, key, isParentActivated = false) {
 	}
 
 	if (Array.isArray(data.type)) {
-		return getType(Object.assign({}, data, { type: data.type[0] }), '', isParentActivated);
+		return getType({ ...data, type: data.type[0] }, '', isParentActivated);
 	}
 
 	if (hasRef(data)) {
@@ -43,7 +42,7 @@ function getTypeProps(data, key, isParentActivated) {
 			};
 			const arrayChoices = getChoices(data, key);
 
-			return Object.assign({}, arrayProps, arrayChoices, extensions);
+			return { ...arrayProps, ...arrayChoices, ...extensions };
 		}
 		case 'object': {
 			const objectProps = {
@@ -63,7 +62,7 @@ function getTypeProps(data, key, isParentActivated) {
 			};
 			const objectChoices = getChoices(data, key);
 
-			return Object.assign({}, objectProps, objectChoices, extensions);
+			return { ...objectProps, ...objectChoices, ...extensions };
 		}
 		case 'parameter':
 			if (!properties || properties.length === 0) {
@@ -85,9 +84,9 @@ function hasRef(data = {}) {
 
 function getArrayItemsType(items, isParentActivated) {
 	if (Array.isArray(items)) {
-		return Object.assign({}, items.length > 0 ? getType(items[0], '', isParentActivated) : {});
+		return { ...(items.length > 0 ? getType(items[0], '', isParentActivated) : {}) };
 	}
-	return Object.assign({}, items ? getType(items, '', isParentActivated) : {});
+	return { ...(items ? getType(items, '', isParentActivated) : {}) };
 }
 
 function getObjectProperties(properties, isParentActivated) {
@@ -110,17 +109,16 @@ function getXml(data) {
 		return undefined;
 	}
 
-	return Object.assign(
-		{},
-		{
+	return {
+		...{
 			name: data.xmlName,
 			namespace: data.xmlNamespace,
 			prefix: data.xmlPrefix,
 			attribute: data.xmlAttribute,
 			wrapped: data.xmlWrapped,
 		},
-		getExtensions(data.scopesExtensions),
-	);
+		...getExtensions(data.scopesExtensions),
+	};
 }
 
 function getPrimitiveTypeProps(data) {
@@ -225,9 +223,7 @@ function addIfTrue(data, propertyName, value) {
 		return data;
 	}
 
-	return Object.assign({}, data, {
-		[propertyName]: value,
-	});
+	return { ...data, [propertyName]: value };
 }
 
 function getArrayItemsExample(items) {

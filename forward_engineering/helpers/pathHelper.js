@@ -6,11 +6,10 @@ const { mapParameter } = require('./componentsHelpers/parametersHelper');
 const { mapRequestBody } = require('./componentsHelpers/requestBodiesHelper');
 const { mapResponse } = require('./componentsHelpers/responsesHelper');
 const { hasRef, getRef } = require('./typeHelper');
-const { commentDeactivatedItemInner } = require('./commentsHelper');
 
 function getPaths(containers, containersIdsForCallbacks = []) {
 	return containers
-		.filter(({ id }) => !containersIdsForCallbacks.includes(id))
+		.filter(({ id, containerData }) => !containersIdsForCallbacks.includes(id) && containerData[0])
 		.reduce((acc, container, index) => {
 			const { name, isActivated } = container.containerData[0];
 			const containerData = getRequestsForContainer(container, containers, [], isActivated);
@@ -40,7 +39,7 @@ function getRequestsForContainer(container, containers, containersPath = [], isP
 
 	const containerExtensions = getExtensions(contactExtensions);
 
-	return Object.assign({}, containerData, additionalContainerData, containerExtensions);
+	return { ...containerData, ...additionalContainerData, ...containerExtensions };
 }
 
 function getRequestData(collections, containers, containerId, containersPath = [], isPathActivated = true) {
@@ -78,7 +77,7 @@ function getRequestData(collections, containers, containerId, containersPath = [
 				isActivated: data.isActivated,
 			};
 
-			return Object.assign({}, request, extensions);
+			return { ...request, ...extensions };
 		})
 		.reduce((acc, collection, index) => {
 			const { methodName, isActivated } = collection;
@@ -159,8 +158,7 @@ function getCallbacks(data, containers, containerId, containersPath = []) {
 			return { [key]: { [value.callbackExpression]: callbackData, ...extensions } };
 		})
 		.reduce((acc, item) => {
-			acc = Object.assign({}, acc, item);
-			return acc;
+			return { ...acc, ...item };
 		}, {});
 }
 
