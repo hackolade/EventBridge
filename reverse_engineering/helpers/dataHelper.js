@@ -800,7 +800,7 @@ const handleResponse = responseObj => {
 };
 
 const handleResponseData = (responseObj, response, request, fieldOrder) => {
-	const responseData = handleResponse(responseObj, fieldOrder);
+	const responseData = handleResponse(responseObj);
 	const jsonSchema = {
 		type: 'object',
 		subtype: 'response',
