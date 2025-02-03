@@ -9,7 +9,7 @@ const { hasRef, getRef } = require('./typeHelper');
 
 function getPaths(containers, containersIdsForCallbacks = []) {
 	return containers
-		.filter(({ id, containerData }) => !containersIdsForCallbacks.includes(id) && containerData[0])
+		.filter(({ id }) => !containersIdsForCallbacks.includes(id))
 		.reduce((acc, container, index) => {
 			const { name, isActivated } = container.containerData[0];
 			const containerData = getRequestsForContainer(container, containers, [], isActivated);
