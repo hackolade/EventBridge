@@ -11,7 +11,7 @@ function getInfo({ description, version, modelVersion, title = '', termsOfServic
 	};
 
 	const extensions = getExtensions(infoExtensions);
-	return Object.assign({}, info, extensions);
+	return { ...info, ...extensions };
 }
 
 function getContact(contact) {
@@ -26,7 +26,7 @@ function getContact(contact) {
 	};
 	const extensions = getExtensions(contact.contactExtensions);
 
-	return Object.assign({}, contactObj, extensions);
+	return { ...contactObj, ...extensions };
 }
 
 function getLicense(license) {
@@ -40,7 +40,7 @@ function getLicense(license) {
 	};
 	const extensions = getExtensions(license.contactExtensions);
 
-	return Object.assign({}, licenseObject, extensions);
+	return { ...licenseObject, ...extensions };
 }
 
 module.exports = getInfo;

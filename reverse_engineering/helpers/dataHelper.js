@@ -33,9 +33,10 @@ const handleObject = (func, object, includeKey) => {
 		return {};
 	}
 	return Object.keys(object).reduce((accum, key) => {
-		return Object.assign({}, accum, {
+		return {
+			...accum,
 			[key]: func(object[key], includeKey ? key : undefined),
-		});
+		};
 	}, {});
 };
 
@@ -50,11 +51,11 @@ const getObjectProperties = (propsToClean, object) => {
 			return obj;
 		}
 		if (key === '$ref') {
-			return Object.assign({}, obj, { [key]: resolveReference(object[key]) });
+			return { ...obj, [key]: resolveReference(object[key]) };
 		}
-		return Object.assign({}, obj, { [key]: object[key] });
+		return { ...obj, [key]: object[key] };
 	}, {});
-	return Object.assign({}, getExtensionsObject(object), filteredObject);
+	return { ...getExtensionsObject(object), ...filteredObject };
 };
 
 const getServersData = servers => {
@@ -161,9 +162,9 @@ const handleDataByConfig = (data, config) => {
 			return { [property]: data.map(item => handleDataByConfig(item, config[0])) };
 		} else if (configType === 'object') {
 			return { [property]: handleDataByConfig(data, config) };
-		} else {
-			return { [config]: data };
 		}
+
+		return { [config]: data };
 	};
 
 	if (typeof data === 'string') {
@@ -174,15 +175,15 @@ const handleDataByConfig = (data, config) => {
 
 	const extensionsObject = getExtensionsObject(data);
 
-	return Object.assign(
-		extensionsObject,
-		Object.keys(config).reduce((accumulator, key) => {
+	return {
+		...extensionsObject,
+		...Object.keys(config).reduce((accumulator, key) => {
 			if (!data[key]) {
 				return accumulator;
 			}
-			return Object.assign({}, accumulator, handleProperty(data[key], config, key));
+			return { ...accumulator, ...handleProperty(data[key], config, key) };
 		}, {}),
-	);
+	};
 };
 
 const getEntityData = (schema, type = REQUEST) => {
@@ -214,7 +215,7 @@ const getContainersFromCallbacks = callbacks => {
 
 			return [
 				{
-					data: Object.assign({}, { name: pathName }, extensionsObject),
+					data: { name: pathName, ...extensionsObject },
 					callbackPath,
 				},
 				...requestCallbacksPathsData,
@@ -226,7 +227,7 @@ const getContainersFromCallbacks = callbacks => {
 };
 
 const getContainers = (pathData, callbacks) => {
-	let updatedPathData = Object.assign({}, pathData);
+	let updatedPathData = { ...pathData };
 	const containers = Object.keys(pathData).reduce((accum, key) => {
 		const path = pathData[key];
 		const extensionsObject = getExtensionsObject(path, 'extensions');
@@ -235,10 +236,10 @@ const getContainers = (pathData, callbacks) => {
 			return accum.concat(getContainersFromRequestCallbacks(path[requestName]));
 		}, []);
 		const containersData = requestCallbacksPathsData.map(pathData => {
-			updatedPathData = Object.assign({}, updatedPathData, { [pathData.data.name]: pathData.callbackPath });
+			updatedPathData = { ...updatedPathData, [pathData.data.name]: pathData.callbackPath };
 			return pathData.data;
 		});
-		return accum.concat(Object.assign({}, { name: key, summary: path.summary }, extensionsObject), containersData);
+		return [...accum, { name: key, summary: path.summary, ...extensionsObject }, ...containersData];
 	}, []);
 
 	if (callbacks) {
@@ -247,7 +248,7 @@ const getContainers = (pathData, callbacks) => {
 			return accum.concat(callbacksData);
 		}, []);
 		const componentCallbacksContainers = componentCallbacksPathData.map(pathData => {
-			updatedPathData = Object.assign({}, updatedPathData, { [pathData.data.name]: pathData.callbackPath });
+			updatedPathData = { ...updatedPathData, [pathData.data.name]: pathData.callbackPath };
 			return pathData.data;
 		});
 		return { containers: containers.concat(componentCallbacksContainers), updatedPathData };
@@ -257,8 +258,7 @@ const getContainers = (pathData, callbacks) => {
 };
 
 const handleExample = data => {
-	const value = getExampleStringValue(data.value);
-	return Object.assign({}, data, { type: 'example', value });
+	return { ...data, type: 'example', value: getExampleStringValue(data.value) };
 };
 
 const getSchemaObject = (data, fieldOrder) => {
@@ -269,7 +269,7 @@ const getSchemaObject = (data, fieldOrder) => {
 	if (schemaChoice) {
 		return { [schemaChoice]: schemaWithChoices[schemaChoice] };
 	}
-	return { properties: { schema: Object.assign({}, schema, { subtype: 'schema' }) } };
+	return { properties: { schema: { ...schema, subtype: 'schema' } } };
 };
 
 const getExamplesObject = data => {
@@ -319,24 +319,21 @@ const handleLink = data => {
 	const parameters = handleObject(handleExpression, data.parameters);
 	const server = data.server && getServersData([data.server]);
 
-	return Object.assign(
-		{},
-		data,
-		{
-			type: 'link',
-			subtype: 'expression',
-			properties: {
-				parameters: {
-					type: 'operationObject',
-					subtype: 'expression',
-					properties: parameters,
-				},
-				requestBody,
+	return {
+		...data,
+		type: 'link',
+		subtype: 'expression',
+		properties: {
+			parameters: {
+				type: 'operationObject',
+				subtype: 'expression',
+				properties: parameters,
 			},
+			requestBody,
 		},
-		server,
-		getExtensionsObject(data),
-	);
+		...server,
+		...getExtensionsObject(data),
+	};
 };
 
 const getLinksObject = data => {
@@ -354,22 +351,22 @@ const handleHeader = (data, fieldOrder) => {
 	const schemaObject = getSchemaObject(data, fieldOrder);
 	const content = getContentObject(data);
 	const examples = getExamplesObject(data);
-	const headerProperties = Object.assign({}, schemaObject.properties || {}, {
-		content,
-		examples,
-	});
-	const header = Object.assign({}, schemaObject, data, {
+	const headerProperties = { ...(schemaObject.properties || {}), content, examples };
+	const header = {
+		...schemaObject,
+		...data,
 		sample: getExampleStringValue(data.example),
 		type: 'header',
 		properties: headerProperties,
-	});
+	};
 	const propsToClean = ['schema', 'examples', 'example', 'content'];
 	return getObjectProperties(propsToClean, header);
 };
 
 const handleEncoding = data => {
 	const propsToClean = ['headers'];
-	return Object.assign({}, getObjectProperties(propsToClean, data), {
+	return {
+		...getObjectProperties(propsToClean, data),
 		type: 'encoding',
 		properties: {
 			headers: {
@@ -379,7 +376,7 @@ const handleEncoding = data => {
 				properties: handleObject(handleHeader, data.headers),
 			},
 		},
-	});
+	};
 };
 
 const handleMedia = (data, fieldOrder) => {
@@ -396,34 +393,39 @@ const handleMedia = (data, fieldOrder) => {
 		properties: handleObject(handleEncoding, data.encoding),
 		structureType: true,
 	};
-	const mediaProperties = Object.assign({}, schemaObject.properties || {}, {
+	const mediaProperties = {
+		...(schemaObject.properties || {}),
 		examples,
 		encoding,
-	});
+	};
 	const propsToClean = ['schema', 'examples', 'encoding', 'example'];
-	return Object.assign({}, schemaObject, getObjectProperties(propsToClean, data), {
+	return {
+		...schemaObject,
+		...getObjectProperties(propsToClean, data),
 		sample: getExampleStringValue(data.example),
 		type: 'media',
 		properties: mediaProperties,
-	});
+	};
 };
 
-const handleRequestBody = (data, fieldOrder) => {
+const handleRequestBody = data => {
 	const media = handleObject(handleMedia, data.content);
 	const propsToClean = ['content'];
-	return Object.assign({}, getObjectProperties(propsToClean, data), {
+	return {
+		...getObjectProperties(propsToClean, data),
 		type: 'requestBody',
 		properties: media,
-	});
+	};
 };
 
-const handleCallback = (data, fieldOrder) => {
+const handleCallback = data => {
 	const callbackExpression = (Object.keys(data) || [])[0];
-	return Object.assign(
-		{},
-		{ type: 'callback', bucketId: callbackExpression, callbackExpression },
-		getExtensionsObject(data),
-	);
+	return {
+		type: 'callback',
+		bucketId: callbackExpression,
+		callbackExpression,
+		...getExtensionsObject(data),
+	};
 };
 
 const handleChoiceProperty = (fieldOrder, rawChoice, name) => {
@@ -450,10 +452,10 @@ const handleSchemaChoices = (schema, fieldOrder) => {
 		};
 
 		if (!currentChoicesWithSameType) {
-			return Object.assign({}, accum, { [choiceType]: [choiceData] });
+			return { ...accum, [choiceType]: [choiceData] };
 		}
 
-		return Object.assign({}, accum, { [choiceType]: accum[choiceType].concat(choiceData) });
+		return { ...accum, [choiceType]: [...accum[choiceType], choiceData] };
 	}, {});
 
 	const choiceTypes = Object.keys(schemaChoices);
@@ -493,22 +495,24 @@ const handleSchemaChoices = (schema, fieldOrder) => {
 		}));
 
 		if (choiceType === 'allOf' && hasMultipleOneOf) {
-			return Object.assign({}, accum, {
-				[choiceType]: subschemas.concat(multipleOneOf),
-			});
+			return {
+				...accum,
+				[choiceType]: [...subschemas, ...multipleOneOf],
+			};
 		}
 
-		return Object.assign({}, accum, {
+		return {
+			...accum,
 			[choiceType]: subschemas,
-		});
+		};
 	}, {});
 
 	if (!hasAllOf && hasMultipleOneOf) {
-		const choicesWithAllOf = Object.assign({}, resolvedChoices, { allOf: multipleOneOf });
-		return Object.assign({}, schema, choicesWithAllOf, { properties: schemaProps });
+		const choicesWithAllOf = { ...resolvedChoices, allOf: multipleOneOf };
+		return { ...schema, ...choicesWithAllOf, properties: schemaProps };
 	}
 
-	return Object.assign({}, schema, resolvedChoices, { properties: schemaProps });
+	return { ...schema, ...resolvedChoices, properties: schemaProps };
 };
 
 const handleSchemaExample = (schemaType, example) => {
@@ -533,22 +537,25 @@ const handleAdditionalProperties = schema => {
 	}
 	if (typeof data === 'object') {
 		if (data.format) {
-			return Object.assign({}, schema, {
+			return {
+				...schema,
 				additionalPropControl: 'Object',
 				additionalPropertiesObjectType: data.type,
 				additionalPropertiesIntegerFormat: data.format,
-			});
+			};
 		}
-		return Object.assign({}, schema, {
+		return {
+			...schema,
 			additionalPropControl: 'Object',
 			additionalPropertiesObjectType: data.type,
-		});
-	} else {
-		return Object.assign({}, schema, {
-			additionalPropControl: 'Boolean',
-			additionalProperties: !!data,
-		});
+		};
 	}
+
+	return {
+		...schema,
+		additionalPropControl: 'Boolean',
+		additionalProperties: !!data,
+	};
 };
 
 const handleSchemaProperty = (property, data) => {
@@ -605,10 +612,10 @@ const handleSchemaExtensions = schema => {
 		if (property.startsWith(EXTENSION_SYMBOL)) {
 			return accumulator;
 		}
-		return Object.assign({}, accumulator, { [property]: schema[property] });
+		return { ...accumulator, [property]: schema[property] };
 	}, {});
 
-	return Object.assign({}, schemaWithoutExtensions, mappedExtensionsObject);
+	return { ...schemaWithoutExtensions, ...mappedExtensionsObject };
 };
 
 const handleSchemaProps = (schema, fieldOrder) => {
@@ -701,13 +708,15 @@ const handleParameter = (parameter, parameterName, fieldOrder) => {
 		content: parameterContent,
 		examples: parameterExamples,
 	};
-	const newParameter = Object.assign({}, parameterSchemaObject, parameter, {
+	const newParameter = {
+		...parameterSchemaObject,
+		...parameter,
 		name: parameterName || parameter.name,
 		parameterName: parameter.name,
 		sample: getExampleStringValue(parameter.example),
 		type: parameterType,
 		properties: parameterProperties,
-	});
+	};
 	const propsToClean = ['schema', 'examples', 'example', 'in', 'content'];
 	return getObjectProperties(propsToClean, newParameter);
 };
@@ -730,21 +739,22 @@ const handleSecuritySchemes = data => {
 					return scopeAccum.concat({ scopeName: scopeKey, scopeDescription: flowObject.scopes[scopeKey] });
 				}, []);
 			}
-			return Object.assign({}, accum, { [flow]: flowObject });
+			return { ...accum, [flow]: flowObject };
 		}, {});
 	}
-	return Object.assign({}, getObjectProperties(propsToClean, data), {
+	return {
+		...getObjectProperties(propsToClean, data),
 		type: 'securityScheme',
 		apiKeyName: data.name,
 		schemeType: data.type,
-	});
+	};
 };
 
 const handleRequestData = (requestData, request, fieldOrder) => {
 	const responses = requestData.responses;
 	const entityData = getEntityData(requestData, REQUEST);
 	const parametersData = getParametersData(requestData.parameters, fieldOrder);
-	const requestBody = handleRequestBody(requestData.requestBody || {}, fieldOrder);
+	const requestBody = handleRequestBody(requestData.requestBody || {});
 	const callbacksData = handleObject(handleCallback, requestData.callbacks);
 	const requestSchema = {
 		parameters: {
@@ -760,18 +770,19 @@ const handleRequestData = (requestData, request, fieldOrder) => {
 			properties: callbacksData,
 		},
 	};
-	const jsonSchema = Object.assign({}, entityData, {
+	const jsonSchema = {
+		...entityData,
 		type: 'object',
 		entityType: REQUEST,
 		subtype: 'requestBody',
 		collectionName: request,
 		properties: requestSchema,
 		isActivated: true,
-	});
+	};
 	return { jsonSchema, responses };
 };
 
-const handleResponse = (responseObj, fieldOrder) => {
+const handleResponse = responseObj => {
 	const headers = getHeadersObject(responseObj);
 	const content = getContentObject(responseObj);
 	const links = getLinksObject(responseObj);
@@ -781,14 +792,15 @@ const handleResponse = (responseObj, fieldOrder) => {
 		content,
 		links,
 	};
-	return Object.assign({}, getObjectProperties(propsToClean, responseObj), {
+	return {
+		...getObjectProperties(propsToClean, responseObj),
 		type: 'response',
 		properties: propertiesSchema,
-	});
+	};
 };
 
 const handleResponseData = (responseObj, response, request, fieldOrder) => {
-	const responseData = handleResponse(responseObj, fieldOrder);
+	const responseData = handleResponse(responseObj);
 	const jsonSchema = {
 		type: 'object',
 		subtype: 'response',
@@ -816,7 +828,7 @@ const getEntities = (pathData, containers, fieldOrder) => {
 			});
 			return [...accumulator, jsonSchema, ...responseSchemas];
 		}, []);
-		return Object.assign(accumulator, { [container.name]: entities });
+		return { ...accumulator, [container.name]: entities };
 	}, {});
 };
 
@@ -894,14 +906,11 @@ const getComponents = (schemaComponents = {}, fieldOrder) => {
 		structureType: true,
 		properties: callbacksData,
 	};
-	const extensions = Object.assign(
-		{},
-		{
-			type: 'extensions',
-			structureType: true,
-		},
-		extensionsData,
-	);
+	const extensions = {
+		type: 'extensions',
+		structureType: true,
+		...extensionsData,
+	};
 
 	const definitionsSchema = {
 		definitions: {
@@ -930,10 +939,11 @@ const getOpenAPIJsonSchema = (data, fileName, extension) => {
 	const schema = extension !== '.json' ? commonHelper.convertYamlToJson(data) : data;
 	const openAPISchema = typeof schema === 'string' ? jsonComment.parse(schema.replace(/^\s*#.+$/gm, '')) : schema;
 	const updatedOpenApiSchema = copyPathItemLevelParametersToOperationObject(openAPISchema);
-	const openAPISchemaWithModelName = Object.assign({}, updatedOpenApiSchema, {
+
+	return {
+		...updatedOpenApiSchema,
 		modelName: fileName,
-	});
-	return openAPISchemaWithModelName;
+	};
 };
 
 const copyPathItemLevelParametersToOperationObject = schema => {

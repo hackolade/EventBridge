@@ -19,7 +19,7 @@ function mapExternalDocs({ externalDocsUrl, externalDocsDescription, scopesExten
 	};
 	const externalDocsExtensions = getExtensions(scopesExtensions);
 
-	return Object.assign({}, externalDocs, externalDocsExtensions);
+	return { ...externalDocs, ...externalDocsExtensions };
 }
 
 function mapExternalTagDocs({ tagExternalDocsUrl, tagExternalDocsDescription } = {}) {
@@ -44,7 +44,7 @@ function mapTags(tags = []) {
 		};
 		const tagExtensions = getExtensions(tag.scopesExtensions);
 
-		return Object.assign({}, tagObj, tagExtensions);
+		return { ...tagObj, ...tagExtensions };
 	});
 }
 

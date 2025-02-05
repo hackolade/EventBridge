@@ -16,9 +16,10 @@ const renameComponents = components => {
 	}
 
 	return Object.keys(components).reduce((result, componentName) => {
-		return Object.assign({}, result, {
+		return {
+			...result,
 			[prepareName(componentName)]: components[componentName],
-		});
+		};
 	}, {});
 };
 
@@ -37,9 +38,8 @@ function getComponents(definitions, containers) {
 
 	const extensions = getExtensions(get(componentsData, `['Specification Extensions'].scopesExtensions`));
 
-	return Object.assign(
-		{},
-		{
+	return {
+		...{
 			schemas,
 			responses,
 			parameters,
@@ -50,8 +50,8 @@ function getComponents(definitions, containers) {
 			links,
 			callbacks,
 		},
-		extensions,
-	);
+		...extensions,
+	};
 }
 
 module.exports = getComponents;

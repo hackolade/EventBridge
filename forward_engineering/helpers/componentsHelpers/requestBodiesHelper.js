@@ -43,7 +43,7 @@ function mapRequestBody(data, required, isParentActivated = false) {
 	};
 	const extensions = getExtensions(data.scopesExtensions);
 
-	return commentDeactivatedItemInner(Object.assign({}, requestBody, extensions), data.isActivated, isParentActivated);
+	return commentDeactivatedItemInner({ ...requestBody, ...extensions }, data.isActivated, isParentActivated);
 }
 
 module.exports = {

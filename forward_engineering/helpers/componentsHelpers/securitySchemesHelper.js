@@ -25,7 +25,7 @@ const cleanUp = obj => {
 				return acc;
 			}
 
-			return Object.assign({}, acc, { [key]: value });
+			return { ...acc, [key]: value };
 		}, {});
 	}
 
@@ -87,7 +87,7 @@ function mapSecurityScheme(data) {
 	};
 	const extensions = getExtensions(data.scopesExtensions);
 
-	return Object.assign({}, securitySchemeProps, commonFields, extensions);
+	return { ...securitySchemeProps, ...commonFields, ...extensions };
 }
 
 function mapOAuthFlows(data) {
@@ -110,7 +110,7 @@ function mapOAuthFlows(data) {
 
 	const extensions = getExtensions(data.scopesExtensions);
 
-	return cleanUp(Object.assign({}, flows, extensions));
+	return cleanUp({ ...flows, ...extensions });
 }
 
 function mapOAuthFlowObject({ authorizationUrl, tokenUrl, refreshUrl, scopes, scopesExtensions }) {
@@ -122,7 +122,7 @@ function mapOAuthFlowObject({ authorizationUrl, tokenUrl, refreshUrl, scopes, sc
 	};
 	const extensions = getExtensions(scopesExtensions);
 
-	return Object.assign({}, flow, extensions);
+	return { ...flow, ...extensions };
 }
 
 function mapScopes(data) {
