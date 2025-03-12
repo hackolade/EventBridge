@@ -492,8 +492,7 @@ making sure that you maintain a proper JSON format.
 			},
 			{
 				"fieldKeyword": "refPath",
-				"fieldType": "details",
-				"disabled": true
+				"hidden": true
 			},
 			{
 				"propertyKeyword": "additionalProperties",
