@@ -22,9 +22,6 @@ module.exports = {
 			return callback({ message: 'Empty script' });
 		}
 
-		logger.clear();
-		logger.log('info', data, data.hiddenKeys);
-
 		try {
 			const { registry, schema } = getApiStatements(data.script);
 			const schemasInstance = getSchemasInstance(data);
@@ -64,7 +61,6 @@ module.exports = {
 	},
 
 	async testConnection(connectionInfo, logger, callback, app) {
-		logger.log('info', connectionInfo, 'Test connection', connectionInfo.hiddenKeys);
 		const schemasInstance = getSchemasInstance(connectionInfo);
 		try {
 			await schemasInstance.send(new ListRegistriesCommand());
