@@ -1,5 +1,3 @@
-'use strict';
-
 const {
 	SchemasClient,
 	ListRegistriesCommand,
@@ -56,7 +54,6 @@ module.exports = {
 	},
 
 	testConnection: function (connectionInfo, logger, cb, app) {
-		logInfo('Test connection', connectionInfo, logger);
 		const connectionCallback = async schemasInstance => {
 			try {
 				await schemasInstance.send(new ListRegistriesCommand());
@@ -100,13 +97,10 @@ module.exports = {
 			}
 		};
 
-		logInfo('Retrieving databases and tables information', connectionInfo, logger);
 		this.connect(connectionInfo, logger, connectionCallback, app);
 	},
 
 	getDbCollectionsData: function (data, logger, cb) {
-		logger.log('info', data, 'Retrieving schema', data.hiddenKeys);
-
 		const { collectionData } = data;
 		const registries = collectionData.dataBaseNames;
 		const schemas = collectionData.collections;
@@ -330,11 +324,6 @@ const filterSchema = schema => {
 	delete schema.modelName;
 
 	return schema;
-};
-
-const logInfo = (step, connectionInfo, logger) => {
-	logger.clear();
-	logger.log('info', connectionInfo, 'connectionInfo', connectionInfo.hiddenKeys);
 };
 
 const mapEBSRTags = (tags = {}) => {
