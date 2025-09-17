@@ -25,6 +25,10 @@ const getExtensions = schema => {
 
 const getExtensionsObject = (data, keyword = 'scopesExtensions') => {
 	const extensions = getExtensions(data);
+	if (extensions.length === 0) {
+		return {};
+	}
+
 	return { [keyword]: extensions };
 };
 
@@ -69,13 +73,14 @@ const getServersData = servers => {
 		}
 
 		const variables = server.variables ? getServersVariables(server.variables) : [];
+		const extensions = getExtensions(server);
 		return [
 			...accum,
 			{
 				serverURL: server.url,
 				serverDescription: server.description,
 				serverVariables: variables,
-				scopesExtensions: getExtensions(server),
+				...(extensions.length > 0 && { scopesExtensions: extensions }),
 			},
 		];
 	}, []);
@@ -84,12 +89,13 @@ const getServersData = servers => {
 const getServersVariables = variables => {
 	return Object.keys(variables).map(variable => {
 		const variableData = variables[variable];
+		const extensions = getExtensions(variables);
 		return {
 			serverVariableName: variable,
 			serverVariableEnum: (variableData.enum || []).map(enumVal => ({ serverVariableEnumValue: enumVal })),
 			serverVariableDefault: variableData.default,
 			serverVariableDescription: variableData.description,
-			scopesExtensions: getExtensions(variables),
+			...(extensions.length > 0 && { scopesExtensions: extensions }),
 		};
 	}, []);
 };
@@ -604,7 +610,7 @@ const handleSchemaExtensions = schema => {
 	const mappedExtensionsObject = getExtensionsObject(schema);
 	if (
 		!Array.isArray(mappedExtensionsObject.scopesExtensions) ||
-		mappedExtensionsObject.scopesExtensions.length === 0
+		mappedExtensionsObject.scopesExtensions?.length === 0
 	) {
 		return schema;
 	}
