@@ -77,9 +77,6 @@
             "externalDefinitionsFromTargetSchema": true,
             "apiTarget": true,
             "openModelDefinitionsTabIfNoCollections": true,
-            "displayOptions": {
-                "hideNonNullableAttributes": true
-            },
             "erdDefinitions": {
                 "enabled": true,
                 "propertyNames": [
