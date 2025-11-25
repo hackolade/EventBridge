@@ -92,7 +92,7 @@
         "@aws-sdk/client-schemas": "3.686.0",
         "@hackolade/fetch": "1.1.0",
         "comment-json": "4.1.0",
-        "js-yaml": "4.1.0",
+        "js-yaml": "4.1.1",
         "lodash.get": "4.4.2",
         "lodash.isplainobject": "4.0.6",
         "lodash.partial": "4.2.1",
