@@ -89,7 +89,7 @@
     "disabled": false,
     "dependencies": {
         "@apidevtools/swagger-parser": "10.0.3",
-        "@aws-sdk/client-schemas": "3.982.0",
+        "@aws-sdk/client-schemas": "3.1000.0",
         "@hackolade/fetch": "1.1.0",
         "comment-json": "4.1.0",
         "js-yaml": "4.1.1",
@@ -123,6 +123,7 @@
         "@ianvs/prettier-plugin-sort-imports": "4.7.1"
     },
     "overrides": {
-        "minimatch": "10.2.1"
+        "minimatch": "10.2.4",
+        "fast-xml-parser": "5.3.8"
     }
 }
