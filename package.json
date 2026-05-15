@@ -1,6 +1,6 @@
 {
     "name": "EventBridge",
-    "version": "0.2.14",
+    "version": "0.2.15",
     "author": "hackolade",
     "engines": {
         "hackolade": "4.3.15",
@@ -87,7 +87,6 @@
     },
     "description": "Hackolade plugin for AWS EventBridge Schema Registry",
     "disabled": false,
-
     "simple-git-hooks": {
         "pre-commit": "npm run package && npx lint-staged --config lint-staged.config.js",
         "pre-push": "npm run lint"
