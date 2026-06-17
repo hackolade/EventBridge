@@ -101,7 +101,7 @@
     "devDependencies": {
         "@hackolade/hck-esbuild-plugins-pack": "0.0.1",
         "@ianvs/prettier-plugin-sort-imports": "4.7.1",
-        "esbuild": "0.27.3",
+        "esbuild": "0.28.1",
         "esbuild-node-externals": "1.20.1",
         "esbuild-plugin-clean": "1.0.1",
         "lint-staged": "16.2.7",
@@ -115,7 +115,7 @@
         "@aws-sdk/client-schemas": "3.1045.0",
         "@hackolade/fetch": "1.1.0",
         "comment-json": "4.1.0",
-        "js-yaml": "4.1.1",
+        "js-yaml": "4.2.0",
         "lodash.get": "4.4.2",
         "lodash.isplainobject": "4.0.6",
         "lodash.partial": "4.2.1",
